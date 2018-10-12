@@ -13,11 +13,15 @@ from sklearn.datasets.samples_generator import make_blobs
 import numpy as np
 import scipy.cluster.hierarchy as hac
 from math import sqrt
-from random import randint
+from random import randint,sample
 import pandas as pd
-import math  
+import math
 import matplotlib.pyplot as plt  
+from covertree import CoverTree, distance_matrix
+from scipy.spatial.distance import euclidean, cityblock, chebyshev
 
 from distance import *
 from file_operation import *
 from plt import *
+from cluster_mst import *
+from sampling import *

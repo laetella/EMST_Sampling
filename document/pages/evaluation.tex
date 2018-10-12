@@ -1,0 +1,266 @@
+\section{Evaluation}
+	There is no unified evaluation index in the clustering evaluation. The objective functions of different clustering algorithms are very different, some are based on distance, such as K-means, some are assumed prior distribution, such as GMM, LDA, some are graph clustering and spectral analysis, such as spectral clustering, and some are based on the density of the spectral clustering distance, one of which is called normalized spectral aggregation, based on normalized Laplacian matrix. The target function of this method contains constraints on the number of classes between classes (normalized cut), so the clustering results naturally make the number of classes more average. 
+
+	In this section, we present the results of three sets of experiments conducted to evaluate our proposed clustering algorithms. We compare our method with Zhong-MST\cite{fast_mst_zhong}, k-means and spectral clustering. For two dimension data sets, we evaluate the results by observing the different colors of clustering result. For low dimension data set, due to its invisibility, we use indices, such as Rand, ARI, Jaccard and FolkesAndMellow to evaluate our method. For high dimension image data sets, we can easily see the clustering result of visual image.    
+
+	\subsection{Results on synthetic datasets}
+		In this set of experiments, the proposed method is tested on eight 2-D synthetic data sets. We consider different densities of data sets and CHAMELEON data sets from \cite{Karypis2008CHAMELEON}. The results are compared with other three algorithms we mentioned above. The experimental results show the good performance of our method.  
+		\par
+		\begin{figure}[htb]
+	        \centering
+	        \includegraphics[width=\linewidth]{mst.png}
+	        \includegraphics[width=\linewidth]{caiming_cluster.png}
+	        \caption{upper left: MST of Prim, upper right: MST of our scaled method, lower left: Clustering result of Zhong-MST-based clustering, lower right: Clustering result of Scaled-MST-based clustering}
+	    \end{figure}
+	
+	    \begin{figure}[htb]
+	          \centering
+	          \includegraphics[width=\linewidth]{data_l.png}
+	          \includegraphics[width=\linewidth]{syn1.png}
+	          \includegraphics[width=\linewidth]{syn2.png}
+	          \caption{left: the clustering result of Zhong-MST, middle left: the clustering result of k-means, middle right: the clustering result of spectral, right: the clustering result of our method.}
+	      \end{figure}
+	    \begin{figure}[htb]
+	          \centering
+	          \includegraphics[width=\linewidth]{t4.png}
+	          \includegraphics[width=\linewidth]{t5.png}
+	          \includegraphics[width=\linewidth]{t7.png}
+	          \includegraphics[width=\linewidth]{t8.png}
+	          \caption{left: the clustering result of Zhong-MST, middle left: the clustering result of k-means, middle right: the clustering result of spectral, right: the clustering result of our method.}
+	        \end{figure}
+
+	\subsection{Results on real datasets}
+		The data sets in this subsection are all taken from UCI. In order to make the result more persuasive, we select different sizes and dimensions and classes to test our method. Furthermore, we employ four well-known evaluation indexes to evaluate the clustering result: the Rand index\cite{Rand1971Objective}, the Jaccard index\cite{Halkidi2001On}, the Adjust rand index\cite{Hubert1985Comparing}, and the F-measure\cite{Larsen1999Fast}. The results are shown in the following tables. Same as the two dimension evaluation, we employ Zhong-MST, K-means and Spectral clustering as the comparison algorithm. For the hayes data set,  we use cut\_least\_largest edge method. And we set the ratio 2 to get the best result. 
+		\begin{table}[htb]
+	      \centering
+	      \caption{description of data sets}
+	      \label{my-label}
+	      \begin{tabular}{|llll|}
+	        \hline
+	         Data Name & Size  & Attribute  & Class  \\ \hline
+	         arcene 		& 200 	& 10000 & 2  \\ 
+	         appendicitis 	& 106 	& 9 & 2 \\ 
+	         banknote 		& 1372 	& 4 & 2 \\ 
+	         breast cancer 	& 699 	& 9 & 2 \\ 
+	         bupa 			& 345 	& 6 & 2 \\ 
+	         fertility 		& 345 	& 7 & 2 \\ 
+	         haberman 		& 306 	& 3 & 2 \\ 
+	         hayes-roth 	& 160 	& 5 & 3 \\ 
+	         ionosphere 	& 351 	& 33& 2 \\ 
+	         iris 			& 150 	& 4 & 3 \\ 
+	         newthyroid 	& 215 	& 5 & 3 \\ 
+	         pima 			& 768 	& 8 & 2 \\ 
+	         soybean-small 	& 47 	& 35& 4 \\ 
+	         wdbc 			& 569 	& 30& 2 \\ 
+	         wine 			& 178 	& 13& 3 \\ 
+	         \hline
+	      \end{tabular}
+    	\end{table}
+		We use two kinds of methods to process the data sets. One is to cut the longest edge of the scaled-MST, the other is to set the minimum point number and the maximum point number of a cluster. In the first one, the best result is on ionosphere data set, and breast cancer in the second one, the four factors are shown above.
+		\begin{table}[htb]
+	      \centering
+	      \caption{clustering result of Zhong-MST-based clustering in different data sets}
+	      \label{my-label}
+	      \begin{tabular}{|lllll|}
+	        \hline
+	         Data Name & Rand index  & Jaccard Index  & Adjust Rand Index & F\-measure  \\ \hline
+	         arcene         & 0.5447 & 0.0921 & 0.3030 & 0.2964  \\ 
+	         appendicitis   & 0.6679 & -0.0139 & 0.6667 & 0.8045  \\ 
+	         banknote       & 0.5056 & -0.0002 & \textbf{0.5052} & \textbf{0.7080}  \\ 
+	         breast cancer  & 0.5484 & 0.0026 & 0.5475 & 0.7390 \\ 
+	         bupa           & 0.5104 & -0.0016 & 0.5092 & \textbf{0.7101} \\ 
+	         fertility      & 0.7715 & -0.0164 & 0.7710 & 0.8661 \\ 
+	         haberman       & 0.6126 & 0.0116 & 0.6107 & \textbf{0.7799} \\ 
+	         hayes-roth     & 0.3742 & 0.0135 & \textbf{0.3613} & \textbf{textbf{}}\ \\ 
+	         ionosphere     & 0.5401 & 0.0045 & 0.5384 & 0.7317 \\ 
+	         iris           & 0.7766 & 0.5638 & 0.5891 & 0.7535 \\ 
+	         newthyroid     & 0.5441 & 0.0313 & 0.5367 & \textbf{0.7301} \\ 
+	         pima           & 0.5458 & 0.0023 & \textbf{0.5451} & \textbf{0.7374} \\ 
+	         soybean-small  & \textbf{0.8501} & \textbf{0.6610} & \textbf{0.6179} & \textbf{0.7682} \\ 
+	         wdbc           & 0.5326 & 0.0024 & 0.5315 & 0.7277 \\ 
+	         wine           & 0.3628 & 0.0054 & 0.3325 & \textbf{0.5476} \\ 
+	         \hline
+	      \end{tabular}
+	    \end{table} 
+		
+	    \begin{table}[htb]
+	      \centering
+	      \caption{clustering result of kmeans clustering in different data sets}
+	      \label{my-label}
+	      \begin{tabular}{|lllll|} \hline
+	         Data Name & Rand index  & Jaccard Index  & Adjust Rand Index & F\-measure  \\ \hline
+	         arcene         & 0.5138 & 0.0266 & 0.3685 & 0.4041  \\ 
+	         appendicitis   & 0.6792 & 0.3141 & 0.5966 & 0.6261  \\ 
+	         banknote       & \textbf{0.5249} & \textbf{0.0485} & 0.3805& 0.4191  \\ 
+	         breast cancer  & 0.9177 & 0.8337 & 0.8611 & 0.8932 \\ 
+	         bupa           & 0.5043 & -0.0054 & 0.4538 & 0.5750 \\ 
+	         fertility      & 0.5533 & 0.0633 & 0.4964 & 0.5050 \\ 
+	         haberman       & 0.4994 & -0.0010 & 0.3787 & 0.3906 \\ 
+	         hayes-roth     & \textbf{0.5874} & \textbf{0.1218} & 0.2913 & 0.3107 \\ 
+	         ionosphere     & 0.5889 & 0.1776 & 0.4336 & 0.4627 \\ 
+	         iris           & 0.8797 & 0.7302 & 0.6959 & 0.7508 \\ 
+		     newthyroid     & \textbf{0.7908} & \textbf{0.5791} & \textbf{0.6752} & \textbf{0.7301} \\ 
+	         pima           & \textbf{0.5507} & \textbf{0.0744} & 0.4576 & 0.5260 \\ 
+	         soybean-small  & 0.8316 & 0.5451 & 0.4888 & 0.5263 \\ 
+	         wdbc           & \textbf{0.7504} & \textbf{0.4914} & \textbf{0.6499} & 0.7390 \\ 
+	         wine           & \textbf{0.7187} & \textbf{0.3711} & 0.4120 & 0.4456 \\ 
+	         \hline
+	      \end{tabular}
+	    \end{table}
+		
+		\begin{table}[htb]
+	      \centering
+	      \caption{clustering result of spectral clustering in different data sets}
+	      \label{my-label}
+	      \begin{tabular}{|lllll|}\hline
+	         Data Name & Rand index  & Jaccard Index  & Adjust Rand Index & F\-measure  \\ \hline
+         	 arcene         & 0.5314 & 0.0605 & \textbf{0.4167} & \textbf{0.4822}  \\ 
+	         appendicitis   & \textbf{0.7827} & \textbf{0.4619} & \textbf{0.7390} & \textbf{0.8105}  \\ 
+	         banknote       & 0.5094 & 0.0081 & 0.5014 & 0.6949  \\ 
+	         breast cancer  & \textbf{0.9389} & \textbf{0.8770} & \textbf{0.8935} & \textbf{0.9126} \\ 
+	         bupa           & 0.4988 & -0.0118 & 0.4161 & 0.4975 \\ 
+	         fertility      & 0.5679 & 0.0795 & 0.5123 & 0.5227 \\ 
+	         haberman       & 0.5010 & -0.0176 & 0.3959 & 0.4162 \\ 
+	         hayes-roth     & 0.5017 & 0.0427 & 0.3028 & 0.3710 \\ 
+	         ionosphere     & 0.4986 & -0.0275 & 0.4089 & 0.4681 \\ 
+	         iris           & 0.7763 & 0.5681 & 0.5951 & 0.7715 \\ 
+	         newthyroid     & 0.5344 & 0.0669 & 0.3849 & 0.4120 \\ 
+	         pima           & 0.4998 & -0.0002 & 0.3523 & 0.3685 \\ 
+	         soybean-small  & 0.5930 & 0.2966 & 0.3812 & 0.6174 \\ 
+	         wdbc           & 0.7098 & 0.4195 & 0.5611 & \textbf{0.6008} \\ 
+	         wine           & 0.6599 & 0.3195 & \textbf{0.4223} & 0.5191 \\ 
+	         \hline
+	      \end{tabular}
+	    \end{table}
+	    \begin{table}[htb]
+	      \centering
+	      \caption{clustering result of our method in different data set}
+	      \label{my-label}
+	      \begin{tabular}{|lllll|}
+	        \hline
+	         Data Name & Rand index  & Jaccard Index  & Adjust Rand Index & F\-measure  \\ \hline
+	         arcene   		& \textbf{0.5489} & \textbf{0.0977} & 0.3847 & 0.4153 \\ 
+	         appendicitis   & 0.6792 & 0.0757 & 0.6670 & 0.7878 \\ 
+	         banknote       & 0.5116 & 0.0127 & 0.4994 & 0.6874 \\ 
+	         breast cancer  & 0.8194 & 0.6359 & 0.7167 & 0.7744 \\ 
+	         bupa           & \textbf{0.5132} & \textbf{0.0045} & \textbf{0.5099} & 0.7091 \\ 
+	         fertility      & \textbf{0.8182} & \textbf{0.2948} & \textbf{0.8077} & \textbf{0.8832} \\ 
+	         haberman       & \textbf{0.6157} & \textbf{0.0231} & \textbf{0.6120} & 0.7793 \\ 
+	         hayes-roth     & 0.5428 & 0.0461 & 0.2641 & 0.2839 \\ 
+	         ionosphere     & \textbf{0.8576} & \textbf{0.7193} & \textbf{0.7687} & \textbf{0.8150} \\ 
+	         iris           & \textbf{0.8923} & \textbf{0.7592} & \textbf{0.7248} & \textbf{0.7810} \\ 
+	         newthyroid     & 0.6352 & 0.2799 & 0.4338 & 0.4442 \\ 
+	         pima           & 0.5466 & 0.0045 & \textbf{0.5451} & 0.7365 \\ 
+	         soybean-small  & 0.8334 & 0.5513 & 0.4944 & 0.5333 \\ 
+	         wdbc           & 0.6303 & 0.2793 & 0.3818 & 0.5077 \\ 
+	         wine           & 0.7128 & 0.3591 & 0.4047 & 0.4380 \\ 
+	         \hline
+	      \end{tabular}
+	    \end{table}
+
+		\begin{figure}[htb]
+	    \centering
+	    \includegraphics[width=0.52\textwidth]{Rand.eps}
+	    \hspace{-6ex}
+	    \includegraphics[width=0.52\textwidth]{Jaccard.eps}
+	    \includegraphics[width=0.52\textwidth]{AdjustRand.eps}
+	    \hspace{-6ex}
+	    \includegraphics[width=0.52\textwidth]{F-measure.eps}
+	    \caption{Four indexes value curve for different algorithms}
+	    \end{figure}
+	\subsection{Results on image}
+		For the image data, the most usual way of assessment is to visually observe the image segmentation results. Furthermore, we integrate these images. Before merge the two pictures, there are 4 clusters in picture1 and 8 clusters in picture2. After clustering and merge the similar. The number of clusters in the five pictures are: 4, 8, 10, 12, 3. We can easily see the result of image integration in Figure 7.
+
+		\begin{figure}[htb]
+			\centering
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{n8_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{8_mst.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{8_kmeans.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{8_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{8_our.jpg}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{n13_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{13_mst.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{13_kmeans.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{13_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{13_our.jpg}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{n16_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{16_mst.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{16_kmeans.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{16_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{16_our.jpg}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{n26_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{26_mst.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{26_kmeans.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{26_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{26_our.jpg}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{n31_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{31_mst.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{31_kmeans.eps}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{31_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{31_our.jpg}}
+			\caption{(left)original image, (middle left)result of Zhong-MST, (middle)k-means, (middle right)spectral, (right)our method }
+		\end{figure}
+
+		\begin{figure}[htb]
+			\centering
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{m1_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m1_mst.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m1_kmeans.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m1_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m1_our.eps}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{m2_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m2_mst.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m2_kmeans.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m2_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m2_our.eps}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{m3_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m3_mst.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m3_kmeans.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m3_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m3_our.eps}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{m4_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m4_mst.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m4_kmeans.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m4_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m4_our.eps}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{m5_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m5_mst.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m5_kmeans.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m5_spectral.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{m5_our.eps}}
+			\caption{(left)original image, (middle left)results of Zhong-MST, (middle)results of k-means, (middle right)results of spectral, (right)results of our method }
+		\end{figure}
+
+		\begin{figure}[htb]
+			\centering
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{n8_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{n13_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{n16_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{n26_source.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{n31_source.jpg}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{8_our.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{13_our.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{16_our.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{26_our.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{31_our.jpg}}
+
+			\subfigure{\includegraphics[width=0.18\linewidth]{8_merge.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{13_merge.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{16_merge.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{26_merge.jpg}}
+			\subfigure{\includegraphics[width=0.18\linewidth]{31_merge.jpg}}
+
+			\caption{The first line : source picture, the second line : clustering results of our method, the last line : results of integration}
+		\end{figure}

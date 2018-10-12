@@ -13,4 +13,4 @@ def dist(point1,point2):
     dimension = len(point1)
     for index in range(dimension)  :
         sum_dis += (point2[index] - point1[index])**2
-    return math.sqrt(sum_dis)
+    return sqrt(sum_dis)

@@ -1,0 +1,51 @@
+
+\begin{algorithm}[H]  
+\caption{Our Scaled-MST algorithm}  
+\KwIn{N, Edge, Dist, Edge\_ratio, Dist\_ratio}  
+\KwOut{an MST represented by parent array and distance array}  
+nodes\_finished.push\_back(1)\;
+smallest\_distance = INFINITY\;
+\For{i From 1 to N} {
+  Dist[i] = Distance(Data[1], Data[i])\;
+  Edge[i] = 1;
+  \If{smallest\_distance $>$ Dist[i]}{  
+      smallest\_distance = Dist[i]\;  
+      next\_node\_to\_inTree = i\;  
+  }
+}
+nodes\_finished.push\_back(next\_node\_to\_inTree)\;
+\For{i From 1 to N} {
+  \If{(i!=1) and (i != next\_node\_to\_inTree)}{  
+    nodes\_unfinished.push\_back(i)\;
+  }
+}
+\While{nodes\_unfinished.size $>$ 0}{  
+  \For{i From 1 to nodes\_unfinished.size} {
+    temp\_dist =  Distance(Data[next\_node\_to\_inTree], Data[nodes\_unfinished[i]])\;
+    dist\_temp[nodes\_unfinished[i]] = temp\_dist\;
+    \If{Dist[nodes\_unfinished[i]] $>$ temp\_dist}{  
+      Dist[nodes\_unfinished[i]] = temp\_dist\;
+      Edge[nodes\_unfinished[i]] = next\_node\_to\_inTree\;
+    }
+  }
+  smallest\_distance = INFINITY\;
+  \For{i From 1 to nodes\_unfinished.size} {
+    temp\_ratio =  temp\_dist[i] $/$ Dist[next\_node\_to\_inTree] \;
+    \If{temp\_ratio $<$ 1}{  
+      temp\_ratio = 1 $/$ temp\_ratio\;
+    }
+    \If{Dist\_ratio[nodes\_unfinished[i]] $>$ temp\_ratio}{  
+      Dist\_ratio[nodes\_unfinished[i]] = temp\_ratio\;
+      Edge\_ratio[nodes\_unfinished[i]] = next\_node\_to\_inTree\;
+    }
+    \If{smallest\_distance $>$ Dist\_ratio[tmpNode]}{  
+      smallest\_distance = Dist\_ratio[tmpNode]\;
+      position = i\;
+      next\_node\_to\_inTree = nodes\_unfinished[i]\;
+    }
+  }
+  nodes\_finished.push\_back(next\_node\_to\_inTree)\;
+  nodes\_unfinished[position] = nodes\_finished.back()\;
+  nodes\_unfinished.pop\_back()\;
+}  
+\end{algorithm}  
