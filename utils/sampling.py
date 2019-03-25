@@ -13,21 +13,34 @@ def cover_knn(point_set, k_threshold):
     result_dist,result_index = my_cover.query(point_set, k_threshold)        
     return result_dist,result_index
 
+# 换一种采样方法
+# 1. 用python 包里的采样方法进行采样
+# 2. 先将0取出来 然后找0的最近邻， 
+
+# 采样： 取第一个点  将它的最近邻加进去 依次加近邻点
 # 用论文中提到的方法，找每个点的四个近邻，保留最近的一个，删除其他三个
+# def toSample(point_set, result_index):
+# 	sample_data = [] 	# 采样结果的数据，用索引表示，初始为所有点，然后一个一个删除
+# 	remained = []
+# 	for i in range(len(point_set)):
+# 		sample_data.append(i)
+# 	# 用从点集中删除点的方法比采样简单，容易实现
+# 	# print "sample_data ", sample_data
+# 	for idx, knns in enumerate(result_index) :
+# 		if idx in sample_data :
+# 			for i in range(2, len(knns)):
+# 				if knns[i] in sample_data :
+# 					sample_data.remove(knns[i])
+# 					remained.append(knns[i])
+# 	return sample_data, remained
+
 def toSample(point_set, result_index):
-	sample_data = [] 	# 采样结果的数据，用索引表示，初始为所有点，然后一个一个删除
-	remained = []
-	for i in range(len(point_set)):
-		sample_data.append(i)
-	# 用从点集中删除点的方法比采样简单，容易实现
-	# print "sample_data ", sample_data
+	sample_data = [result_index[0][0]] 	
 	for idx, knns in enumerate(result_index) :
-		if idx in sample_data :
-			for i in range(2, len(knns)):
-				if knns[i] in sample_data :
-					sample_data.remove(knns[i])
-					remained.append(knns[i])
-	return sample_data, remained
+		if knns[1] not in sample_data :
+			sample_data.append(knns[1])
+	return sample_data
+
 
 def indexToCoor(index, point_set):
 	coor_set = []
