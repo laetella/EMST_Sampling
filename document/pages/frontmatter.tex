@@ -1,12 +1,13 @@
 
 \begin{frontmatter}
-	\title{An improved MST-based clustering algorithm using scaled edge}
+	\title{An efficient MST-based clustering algotrithm based on sampling}
 	% \author{Jia Li, Xiaochun Wang}
 	% \address{laetella827@stu.xjtu.edu.cn, xiaocchunwang@xjtu.edu.cn}
 	\begin{abstract}
-		Clustering analysis is an important technique in the field of data mining. Nowadays, minimum spanning tree-based clustering is becoming one of the most widely used clustering techniques. Although MST-based clustering has been researched for a long time, the requirements of high execution efficiency and high accuracy of clustering result cannot be met at the same time. After analyzing the advantages and disadvantages of the traditional MST-based clustering algorithm, this paper presents a new method to improve the traditional clustering algorithm. There are two steps of our method. Firstly, we use scaled edge weight to compute a scaled-MST. Secondly, we cluster the data set according to the scaled-MST we compute in the first step. Furthermore, we apply our algorithm on image integration. Experiments performed on both small data sets and high-dimensional data sets demonstrate the efficacy of our method.
+		Euclidean Minimum Spanning Tree algorithm is an important method in many fields, and abundant developments have made it a significant branch of mordern graph-based algorithms. However, for today's real-world high dimensionality and huge size data sets, the efficiency of these algorithms is the major bottleneck. To address this issue, this paper presents a new method for MST using sampling. In the first step, we sampling from the data sets by using nearest neighbours to reduce the scale and construct an MST. Then we insert the remainned data to the MST. Experiment results demonstrate the efficacy of our method on high dimensional data sets. 
 	\end{abstract}
+	
 	\begin{keyword}
-		Scaled-MST \sep Clustering \sep Minimum spanning tree-based clustering \sep Image segmentation \sep Image integration 
+		Sampling\sep AMST \sep  minimum spanning tree 
 	\end{keyword}
 \end{frontmatter}

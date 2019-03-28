@@ -12,8 +12,3 @@ def loadData(fileName,data_type, str):
         point = [data_type(data) for data in line.split(str)]
         point_set.append(point)
     return point_set
-
-    # fileName = "../data/data_t4_sorted.csv"   # 6
-    # fileName = "../data/data_t5_sorted.csv"   # 6
-    # fileName = "../data/data_t7_sorted.csv"   # 9
-    # fileName = "../data/data_t8_sorted.csv"   # 8

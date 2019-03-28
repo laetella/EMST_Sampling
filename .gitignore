@@ -5,3 +5,10 @@ __pycache__/
 data/
 result/
 utils/*.pyc
+*.aux
+*.bbl
+*.blg
+*.spl
+*.log
+*.synctex.gz
+*.pdf

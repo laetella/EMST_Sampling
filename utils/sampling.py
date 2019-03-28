@@ -5,6 +5,11 @@
 # date: 2018-10-09 09:31:32
 # updateDate: 2018-10-09 09:31:32
 # described: sampling data from original data
+'''
+两种采样方法：
+1.	任选一个点作为初始点，然后选取它的最近邻，再依次加入近邻点
+2.	求所有点的5个近邻， 取完一个点和它的近邻之后，其他点都不要
+'''
 
 from headers import *
 
@@ -12,35 +17,6 @@ def cover_knn(point_set, k_threshold):
     my_cover = CoverTree(point_set, euclidean, leafsize=2)
     result_dist,result_index = my_cover.query(point_set, k_threshold)        
     return result_dist,result_index
-
-# 换一种采样方法
-# 1. 用python 包里的采样方法进行采样
-# 2. 先将0取出来 然后找0的最近邻， 
-
-# 采样： 取第一个点  将它的最近邻加进去 依次加近邻点
-# 用论文中提到的方法，找每个点的四个近邻，保留最近的一个，删除其他三个
-# def toSample(point_set, result_index):
-# 	sample_data = [] 	# 采样结果的数据，用索引表示，初始为所有点，然后一个一个删除
-# 	remained = []
-# 	for i in range(len(point_set)):
-# 		sample_data.append(i)
-# 	# 用从点集中删除点的方法比采样简单，容易实现
-# 	# print "sample_data ", sample_data
-# 	for idx, knns in enumerate(result_index) :
-# 		if idx in sample_data :
-# 			for i in range(2, len(knns)):
-# 				if knns[i] in sample_data :
-# 					sample_data.remove(knns[i])
-# 					remained.append(knns[i])
-# 	return sample_data, remained
-
-def toSample(point_set, result_index):
-	sample_data = [result_index[0][0]] 	
-	for idx, knns in enumerate(result_index) :
-		if knns[1] not in sample_data :
-			sample_data.append(knns[1])
-	return sample_data
-
 
 def indexToCoor(index, point_set):
 	coor_set = []
@@ -91,7 +67,8 @@ def S1InsertS2(sample_mst, parent, graph, result_index, result_dist):
 	# 	total_weight += edge[2]
 	# thre = total_weight / len(graph)
 	thre = max(e[2] for e in graph)
-	# print "threshold: ", thre
+	# print "threshold: ", thre  
+
 	for index,  edge in enumerate(sample_mst) :
 		if edge[2] < thre :
 			temp_edge = [edge[0], result_index[edge[0]][1], result_dist[edge[0]][1]]
@@ -115,4 +92,22 @@ def S1InsertS2(sample_mst, parent, graph, result_index, result_dist):
 	print "graph: ", len(graph)
 	# 两次循环结束后  应该有 不连通的component，想办法连起来就好
 	
-	
+def mst_clustering(mst, point_set, cls_num):
+    sorted_edge = sorted(mst, key = lambda x:x[2],  reverse=True)   #由小到大排序
+    # print sorted_edge
+    for i in range(cls_num-1):
+        mst.remove(sorted_edge[i])
+    subtrees = utils.UnionFind()
+    for edge in mst:
+        subtrees.union(edge[0], edge[1])
+    labels = [0] * len(point_set)
+    for i in range(len(point_set)) :
+        labels[i] = subtrees[i]
+    label_set = list(set(labels))
+    for i in range(len(point_set)) :
+        for j in range(len(label_set)) :
+            if labels[i] == label_set[j] :
+                labels[i] = j
+                break
+    return labels
+

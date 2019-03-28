@@ -1,144 +1,45 @@
-
 \section{Our method} 
-	\subsection{Scaled-MST}
-	  \begin{figure}[htb]
+	In this section, we present our Sampling-based AMST(Approximate Minimum Spanning Tree) approach. To improve the efficiency, we employ cover tree data structure to compute the nearest neighbors.
+	\subsection{Our New Sampling method}
+		\begin{algorithm}
+		  \caption{our first Sampling-based MST algorithm}  
+			\KwIn{a set of N data points}
+			\KwOut{an MST}
+			 compute all nearest neighbors of data sets\;
+			 sampling from the data sets by using the nearest neighbor\;
+			 construct an MST of sampler points\;
+			 insert the remained point to MST\;
+		\end{algorithm}
+
+		\begin{figure}[!t]
 	        \centering
-	        \includegraphics[width=\linewidth]{mst_2.png}
-	        \caption{The result of Prim on diffenent density dataset}
-	  \end{figure}
-	  For clusters with different densities, the traditional EMST representation may not partition the data set with high quality. For example, for the data distributed as shown in Figure1, by visual examination, there are two groups existing in the data set but with two different densities. This is because that, in standard MST-based clustering algorithms, the closeness is usually judged only by a distance measure. During the construction of an MST, the next node to be added into the tree must be the one closest to the tree among the candidate nodes not in the tree. With the consideration of only the distance values of neighboring data points into account, data points on the neighboring boundary at the side of the coarse cluster can become the seeds for the growth of several different clusters which are actually supposed to be the same single one. This is not surprising since the coarse clusters may have large distance between two nodes, while the dense clusters may have small ones. Therefore, removing the longest edges may not result in meaningful groups and EMST-based clustering criteria may favor to producing small sets of isolated nodes in the graph. To avoid unnatural bias for partitioning out small set of points, we realize the goal of clustering is to detect structures existing in the data by optimizing data points within the same cluster to be similar, while those in diverse clusters to be dissimilar as much as possible and propose a new edge weight definition which takes not only the distance itself but also those of neighboring edges in the EMST into considerations so as to enhance the association among the data points in the same group as well as the disassociation among data points in different groups.
-	  \begin{algorithm}
-		\caption{Basic Prim MST algorithm}  
-		\KwIn{Data of size N, a parent array, Edge, a distance array, Dist}
-		\KwOut{an MST represented by the parent array and the distance array}
-		nodes\_finished.push\_back(1)\;
-		smallest\_distance = INFINITY\;
-		\For{i From 1 to N} {
-		  Dist[i] = Distance(Data[1], Data[i])\;
-		  Edge[i] = 1;
-		  \If{smallest\_distance $>$ Dist[i]}{  
-		      smallest\_distance = Dist[i]\;  
-		      next\_node\_to\_inTree = i\;  
-		  }
-		}
-		nodes\_finished.push\_back(next\_node\_to\_inTree)\;
-		\For{i From 1 to N} {
-		  \If{(i!=1) and (i != next\_node\_to\_inTree)}{ 
-		    nodes\_unfinished.push\_back(i)\;
-		  }
-		}
-		\While{nodes\_unfinished.size $>$ 0}{  
-		  smallest\_distance = INFINITY\;
-		  \For{i From 1 to nodes\_unfinished.size} {
-		    temp\_dist =  Distance(Data[next\_node\_to\_inTree], Data[nodes\_unfinished[i]])\;
-		    \If{Dist[nodes\_unfinished[i]] $>$ temp\_dist}{  
-		      Dist[nodes\_unfinished[i]] = temp\_dist\;
-		      Edge[nodes\_unfinished[i]] = nodes\_unfinished[i]\;
-		    }
-		    \If{smallest\_distance $>$ Dist[nodes\_unfinished[i]]}{  
-		      smallest\_distance = Dist[nodes\_unfinished[i]]\;
-		      position = i\;
-		      next\_node\_to\_inTree = nodes\_unfinished[i]\;
-		    }
-		  }
-		  nodes\_finished.push\_back(next\_node\_to\_inTree)\;
-		  nodes\_unfinished[position] = nodes\_finished.back()\;
-		  nodes\_unfinished.pop\_back()\;
-		}  
-	  \end{algorithm}  
-
-	  Our scaled-MST algorithm works by using scaled edge weights to replace the Euclidean distance between two points. This algorithm is easy to implement. A structure, called "sliding window", was employed to identify whether a point is a noise. We start from any point in the largest density clusters. We use two arrays to remember the distances. To be as general as possible, Euclidean distance is employed to represent the weight of an edge. Furthermore, in order to make the calculation more fast, we employ a new method to read data and compute the distance. Suppose that the data is stored in the file by sparse matrix, we just read the index and the value without considering 0 value, which can save time. At the same time, we compute the distance just by their non-zero value. 
-
-	  The "sliding window" stores the edge weight from beginning to the given number edge. We can easily compute the mean value and the standard deviation of the window as test\_value, if test\_value is larger than the threshold(given to find the noise) , the point in the window are noises. If not, we use scaled-MST algorithm to update node\_finished and node\_unfinished structure. 
-
-	  There are some special situation in the calculation of the distance. For example, the distance between two points is very small, or even zero. Due to that we use the distance as the denominator, we set the distance to be 0.001 when it is zero. Furthermore, we regard these two points as the same one, add them to the node\_finished directly.     
-
-	  Without loss of generality, our method has no specific requirements on the dimension of data sets.	To understand our algorithm and compare with the traditional algorithm, Prim algorithm and our scaled-MST algorithm are presented in Algorithm1 and Algorithm2 respectively.
-
-	  Our Scaled-MST algorithm modified the Prim algorithm by using the ratio distance. We have made small changes compared with Prim.  Before we add all points to nodes\_unfinished, We should initialize the two arrays: Dist\_ratio and Edge\_ratio. Besides, we update the Dist\_ratio and Edge\_ratio after we calculate the distance between two points. The condition to justify whether to update the smallest distance changes to the distance ratio, but not the Euclidean distance. 
+	        \includegraphics[width=0.43\linewidth]{1_step1.png}
+	        \includegraphics[width=0.43\linewidth]{1_step2.png}
+	        \includegraphics[width=0.43\linewidth]{1_step3.png}
+	        \includegraphics[width=0.43\linewidth]{1_step4.png}
+	        \caption{steps of our second Sampling-based MST algorithm}
+	    \end{figure}
 
 		\begin{algorithm}
-	      \caption{Our Scaled-MST algorithm}  
-	      \KwIn{N, Edge, Dist, Edge\_ratio, Dist\_ratio}  
-	      \KwOut{an MST represented by parent array and distance array}  
-	      nodes\_finished.push\_back(1)\;
-	      smallest\_distance = INFINITY\;
-	      \For{i from 1 to N} {
-	        Dist[i] = Distance(Data[1], Data[i]); Edge[i] = 1\;
-	        \If{smallest\_distance $>$ Dist[i]}{  
-	            smallest\_distance = Dist[i]\;  
-	            next\_node\_to\_inTree = i\;  
-	        }
-	      }
-	      nodes\_finished.push\_back(next\_node\_to\_inTree)\;
-	      \For{i From 1 to N} {
-	      Dist\_ratio[i] = Dist[i] / smallest\_distance; Edge\_ratio[i] = Edge[i];\;
-	        \If{(i!=1) and (i != next\_node\_to\_inTree)}{  
-	          nodes\_unfinished.push\_back(i)\;
-	        }
-	      }
-	      \While{nodes\_unfinished.size $>$ 0}{  
-	        \For{i From 1 to nodes\_unfinished.size} {
-	          temp\_dist =  Distance(Data[next\_node\_to\_inTree], Data[nodes\_unfinished[i]])\;
-	          dist\_temp[nodes\_unfinished[i]] = temp\_dist\;
-	          \If{Dist[nodes\_unfinished[i]] $>$ temp\_dist}{  
-	            Dist[nodes\_unfinished[i]] = temp\_dist\;
-	            Edge[nodes\_unfinished[i]] = next\_node\_to\_inTree\;
-	          }
-	        }
-	        smallest\_distance = INFINITY\;
-	        \For{i From 1 to nodes\_unfinished.size} {
-	          temp\_ratio =  temp\_dist[i] $/$ Dist[next\_node\_to\_inTree] \;
-	          \If{temp\_ratio $<$ 1}{  
-	            temp\_ratio = 1 $/$ temp\_ratio\;
-	          }
-	          \If{Dist\_ratio[nodes\_unfinished[i]] $>$ temp\_ratio}{  
-	            Dist\_ratio[nodes\_unfinished[i]] = temp\_ratio\;
-	            Edge\_ratio[nodes\_unfinished[i]] = next\_node\_to\_inTree\;
-	          }
-	          \If{smallest\_distance $>$ Dist\_ratio[tmpNode]}{  
-	            smallest\_distance = Dist\_ratio[tmpNode]\;
-	            position = i\;
-	            next\_node\_to\_inTree = nodes\_unfinished[i]\;
-	          }
-	        }
-	        nodes\_finished.push\_back(next\_node\_to\_inTree)\;
-	        nodes\_unfinished[position] = nodes\_finished.back()\;
-	        nodes\_unfinished.pop\_back()\;
-	      }  
-	    \end{algorithm}  
-	\subsection{Clustering}
-	  First we use traditional prim algorithm to get EMST, we use an array to store the MST, every element contains start\_point, end\_point and weight, then we sort the edges by the weight in non-increasing order. After clustering part of the data set, we delete the points which have been clustered.
-	  After calling the scaled\_MST method, we label the point in node\_finished. If the point have not been labeled, we label the point with current\_label. 
-
-	  MST-based clustering algorithms usually need construct an MST at first, which may take a long time. In order to improve the performance of clustering, Our method merges the construction of an MST and MST-based clustering into one step. We use our scaled-MST algorithm to construct MST. After getting one cluster, we remove the points which have been clustered to increase cluster separation. This operation can reduce the complexity of our algorithm. 
-
-	  For the low dimension data set, if we know the number of clusters in advance is 2, then we can use Prim algorithm first, then scaled-MST and then cluster cut longest edge of all the scaled edges. If not, in the third step, we cluster data according to the least point, largest point and ratio threshold. We calculate the mean distance and standard variance of all ratio distance, and use mean distance add standard variance as the ratio threshold. 
-		\begin{algorithm}  
-	      \caption{Our Scaled-MST-clustering algorithm}  
-	      \KwIn{data set}  
-	      \KwOut{a label array }  
-	      use Prim to get an MST\;
-	      sort all edges in MST according to their distance\;
-	      current\_edge = longest edge\;
-	      start cutting from the current edge and get two data sets\;
-	      use our scaled-MST method to compute MST for the two data sets\;
-	      label the points in node\_finished\;
-	      then the label self increase\; 
-	      \eIf{all the points are labeled}{
-	        exit\;
-	      }{
-	        current\_edge = next longer edge\;
-	        go back to 4\;
-	      }
-	    \end{algorithm}  
-	\subsection{Image segmentation and integration}
-		Our scaled-MST clustering can apply to image segmentation and integration. To start our algorithm, We choose five picture to test our clustering algorithm and integrate the five pictures. We select one picture as train data randomly and the other four pictures as test data. To improve the performance, we employ cover tree structure to find the nearest neighbor of all points in our data sets. At the same time, we use Support Vector Machine(SVM) classification to predict the labels of test data. 
-
-		Suppose that there are 4 and 6 clusters in picture1(train data) and picture2(test data) respectively. we construct a cover tree for all of the data in picture1. Then we employ SVM to predict every clusters in picture2. Suppose that for the first cluster in picture2, called cluster A, the result of predicting is label3, and the corresponding cluster is cluster B, we find the nearest neighbors of points in cluster A and cluster B. After that, we compute the mean distance of all distance between every points in cluster A and cluster B and its neighbors. We set one condition to justify whether to merge these two clusters.
-
-		This condition consists of two partitions. One is the number of same labels in cluster A, and the other is the relationship between minimum distance of the two clusters and 2 times of the two mean distance.      
-
-		Our method can apply to the New object recognition. After using our clustering method, we can easily get several clusters, then we compute the clusters in objective picture, using the justify conditions to justify whether to merge. For our purpose, we would be more interested in those clusters whose intra-cluster distance is much smaller than the inter-cluster distance. Therefore, we calculate all intra-cluster distance and inter-cluster distance. If it doesn't satisfy the condition, the two clusters won't be merged. Then we can think that we get a new object.  
-	\subsection{Time complexity analysis}
-		From the description in the previous subsection, our scaled-MST-based clustering consists of two steps, construction of MST and MST-based clustering. For the first step, the worst time complexity is $O(N^2)$, for we employ Prim algorithm. For image data, suppose that we divided the large picture, containing N data, into m pictures, each contains M data, then $m = N/M$ $$\frac{M(M-1)}{2}m = \frac{\frac{N}{m}(\frac{N}{m}-1)}{2}m = \frac{N}{2}(\frac{N}{m}-1)$$ Therefore, we can get that if N is large enough, the time consumption can be reduced to some extent. The complexity of traditional method is  $O(N^2), \frac{N(N-1)}{2}$.  
+		  \caption{our second Sampling-based MST algorithm}  
+			\KwIn{a set of N data points}
+			\KwOut{an MST}
+			 compute k nearest neighbors of data sets, where k=5\;
+			 initialize the sampler points by the whole data sets\;
+			 select one point as the start point, retain the nearest neighbor in the samplers and detele the other four neighbors\;
+			 traverse the data sets until all neighbors are processed\;
+			 construct graph with remained point by connecting them with their nearest neighbors\;
+			 refine MST by connecting the single component and delete the longest edges by using Union Find sets\;
+		\end{algorithm}
+	
+		\begin{figure}[!t]
+	        \centering
+	        \includegraphics[scale=.5]{2_step1.png}\vspace{4pt}
+	        \includegraphics[scale=.5]{2_step2.png}\vspace{4pt}
+	        \includegraphics[scale=.5]{2_step3.png}\vspace{4pt}
+	        \includegraphics[scale=.5]{2_step4.png}
+	        % \vspace{-2cm}
+	        \caption{steps of our second Sampling-based MST algorithm}
+	    \end{figure}
+		
+	\subsection{AMST method}

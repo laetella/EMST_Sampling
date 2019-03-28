@@ -19,9 +19,11 @@ import math
 import matplotlib.pyplot as plt  
 from covertree import CoverTree, distance_matrix
 from scipy.spatial.distance import euclidean, cityblock, chebyshev
+from networkx import Graph,  minimum_spanning_tree,utils
 
 from distance import *
 from file_operation import *
 from plt import *
-from cluster_mst import *
+from prim_mst import *
 from sampling import *
+from mst_clustering import *
