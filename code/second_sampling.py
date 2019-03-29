@@ -4,7 +4,7 @@
 # email: laetella@outlook.com
 # date: 2018-04-26 17:48:00
 # updateDate: 2018-05-10 17:48:00
-# described: to test the method and data
+# described: 用到第二种采样方法 实验效果不好 需要进一步改进
 
 import sys
 sys.path.append('../utils')
@@ -26,6 +26,67 @@ def toSample(point_set, result_index):
 					sample_data.remove(knns[i])
 					remained.append(knns[i])
 	return sample_data, remained
+
+def selectEdge(point, mst, parent, result_index, result_dist):
+	nn = result_index[point]
+	for neighbor in range(1,len(nn)) :
+		edge = [point,result_index[point][neighbor], result_dist[point][neighbor]]
+		if find(edge[0], parent) != find(edge[1], parent) :
+			# print "add an edge: ", edge
+			mst.append(edge)
+			union(edge[0], edge[1], parent)
+			break
+
+# 传入参数为 采样剩余的点的索引， 返回值为这些点和最近邻连成的图
+# 顶点用索引表示
+def comRemMST(point_set, remained, result_index, result_dist):
+	mst = [];  parent = [0]*len(point_set)
+	for i in range(len(point_set)) :
+		parent[i] = i
+	# 用加最近邻的方法 应该49条边 但只有42条边  是EMST，后面需要合并component
+	# 调用函数  找不一定最近邻 可以49条边 但是AMST  不是EMST
+	for point in remained:
+		edge = [point,result_index[point][1], result_dist[point][1]]
+		if find(edge[0], parent) != find(edge[1], parent) :
+			# print "add an edge: ", edge
+			mst.append(edge)
+			union(edge[0], edge[1], parent)
+		# selectEdge(point, mst, parent, result_index, result_dist)
+	return mst, parent
+
+# 传入参数为采样的点的索引
+# 将采样的点加入到 已构成的graph中 
+def S1InsertS2(sample_mst, parent, graph, result_index, result_dist):
+	# total_weight = 0
+	# for edge in graph:
+	# 	total_weight += edge[2]
+	# thre = total_weight / len(graph)
+	thre = max(e[2] for e in graph)
+	# print "threshold: ", thre  
+
+	for index,  edge in enumerate(sample_mst) :
+		if edge[2] < thre :
+			temp_edge = [edge[0], result_index[edge[0]][1], result_dist[edge[0]][1]]
+			if find(edge[0], parent) != find(result_index[edge[0]][1], parent) :
+			  	graph.append(temp_edge)
+			  	union(edge[0], result_index[edge[0]][1], parent) 
+			# selectEdge(edge[0], graph, parent, result_index, result_dist)
+		else:
+			temp_edge = [edge[0], result_index[edge[0]][1], result_dist[edge[0]][1]]
+			if find(edge[0], parent) != find(result_index[edge[0]][1], parent) :
+			  	graph.append(temp_edge)
+			  	union(edge[0], result_index[edge[0]][1], parent) 
+			else:
+				temp_edge = [edge[1], result_index[edge[1]][1], result_dist[edge[1]][1]]
+				if find(edge[1], parent) != find(result_index[edge[1]][1], parent) :
+				  	graph.append(temp_edge)
+				  	union(edge[1], result_index[edge[1]][1], parent)  
+				else:
+					selectEdge(temp_edge[1] , graph, parent, result_index, result_dist)
+	# 用连接component的方法		
+	print "graph: ", len(graph)
+	# 两次循环结束后  应该有 不连通的component，想办法连起来就好
+
 
 if __name__ == '__main__':  
 	fileName = "../data/chaining.dat"   # 8
@@ -49,20 +110,40 @@ if __name__ == '__main__':
 	# 对采样的数据创建EMST  调用mlpack的构造mst的方法效率更高
 	# step1 construct MST with sample point 
 	sample_point = indexToCoor(sample_index, point_set)
-	sample_mst, edge_arr, dist_arr = prim_mst(sample_point, 0)
-	temp_mst = index_change(sample_mst, sample_point, point_set)
-	result_mst = sorted(temp_mst, key = lambda x:x[2])
-	# plot_mst(result_mst, point_set, fileName, 1)
+	sample_mst = kruscal(sample_point)
+	# sample_mst, edge_arr, dist_arr = prim_mst(sample_point, 0)
+	result_mst = index_change(sample_mst, sample_point, point_set)
+	# result_mst = sorted(temp_mst, key = lambda x:x[2])
+	plot_mst(result_mst, point_set, fileName, 3)
 
 	# step2:  construct graph with remained point
-	remained_graph, parent = comRemMST(point_set, remained_index, result_index, result_dist)
-	print "remained_graph size : ", len(remained_graph) 
-	# plot_mst(remained_graph,point_set,fileName,2)
-	
+	uf = utils.UnionFind()
+	for e in result_mst:
+		uf.union(e[0], e[1])
+	remained_point = indexToCoor(remained_index, point_set)
+	for idx in remained_index:
+		result_mst.append([idx, result_index[idx][1], result_dist[idx][1]])
+	plot_mst(result_mst,point_set,fileName,4)
+		
+	# remained_mst = kruscal(remained_point)
+	# # remained_graph, parent = comRemMST(point_set, remained_index, result_index, result_dist)
+	# print "remained_graph size : ", len(remained_mst) 
+	# temp_mst = index_change(remained_mst, remained_point, point_set)
+
+	# result_mst.extend(temp_mst)
+	# result_mst.sort(key = lambda x:x[2])
+	# uf = utils.UnionFind()
+	# mst = []
+	# for e in result_mst:
+	# 	if uf[e[0]] != uf[e[1]] :
+	# 		uf.union(e[0], e[1])
+	# 		mst.append(e)
+	# print "result_mst size: ", len(result_mst)
+	# plot_mst(mst,point_set,fileName,3)
+		
 	# step3:  把S1中的点插入S2
-	S1InsertS2(result_mst, parent, remained_graph, result_index, result_dist)
-	# 删除长边以及把不相连的component连起来
-	plot_mst(remained_graph,point_set,fileName,3)
+	# S1InsertS2(result_mst, parent, remained_graph, result_index, result_dist)
+	# # 删除长边以及把不相连的component连起来
 	# print parent
 	# step4: 连接component
 	# 按照论文中的方法替换边

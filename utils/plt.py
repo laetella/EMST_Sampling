@@ -1,6 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+#-*- coding:utf-8 -*- 
+# author: LiJia
+# email: laetella@outlook.com
+# date: 2019-03-29 18:08:36
+# updateDate: 2019-03-29 18:08:36
+# described: some plot functions
 
-from headers import *
+import matplotlib.pyplot as plt  
 
 def plt_point(point_set,fileName):
     for point in point_set:
@@ -67,3 +73,9 @@ def plt_10clusters(point_set, clusters, fileName):
     plt.yticks([])
     plt.scatter(x, y, c = cl)
     plt.savefig('../result/%s_clusters.png'%(fileName.split('/')[2].split('.')[0]), dpi=500)
+
+def plt_test(point_set, clusters, fileName):
+    for point in point_set:
+        plt.scatter(point[0],point[1],s=20)
+        plt.annotate(point_set.index(point), xy = (point[0], point[1]),xycoords = 'data',fontsize=0.2)
+    plt.savefig('../result/%s_point.png'%(fileName.split('/')[2].split('.')[0]), dpi=1000)

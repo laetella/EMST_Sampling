@@ -10,13 +10,21 @@
 1.	任选一个点作为初始点，然后选取它的最近邻，再依次加入近邻点
 2.	求所有点的5个近邻， 取完一个点和它的近邻之后，其他点都不要
 '''
-
-from headers import *
+from covertree import CoverTree, distance_matrix
+from scipy.spatial.distance import euclidean, cityblock, chebyshev
+from mst_cls import kruscal
 
 def cover_knn(point_set, k_threshold):
     my_cover = CoverTree(point_set, euclidean, leafsize=2)
     result_dist,result_index = my_cover.query(point_set, k_threshold)        
     return result_dist,result_index
+
+def toSample(point_set, result_index):
+	sample_data = [result_index[0][0]] 	
+	for idx, knns in enumerate(result_index) :
+		if knns[1] not in sample_data :
+			sample_data.append(knns[1])
+	return sample_data
 
 def indexToCoor(index, point_set):
 	coor_set = []
@@ -32,82 +40,31 @@ def index_change(sample_mst, sample_point, point_set):
 		mst.append([start, end, edge[2]])
 	return mst
 
-def selectEdge(point, mst, parent, result_index, result_dist):
-	nn = result_index[point]
-	for neighbor in range(1,len(nn)) :
-		edge = [point,result_index[point][neighbor], result_dist[point][neighbor]]
-		if find(edge[0], parent) != find(edge[1], parent) :
-			# print "add an edge: ", edge
-			mst.append(edge)
-			union(edge[0], edge[1], parent)
-			break
-
-# 传入参数为 采样剩余的点的索引， 返回值为这些点和最近邻连成的图
-# 顶点用索引表示
-def comRemMST(point_set, remained, result_index, result_dist):
-	mst = [];  parent = [0]*len(point_set)
-	for i in range(len(point_set)) :
-		parent[i] = i
-	# 用加最近邻的方法 应该49条边 但只有42条边  是EMST，后面需要合并component
-	# 调用函数  找不一定最近邻 可以49条边 但是AMST  不是EMST
-	for point in remained:
-		edge = [point,result_index[point][1], result_dist[point][1]]
-		if find(edge[0], parent) != find(edge[1], parent) :
-			# print "add an edge: ", edge
-			mst.append(edge)
-			union(edge[0], edge[1], parent)
-		# selectEdge(point, mst, parent, result_index, result_dist)
-	return mst, parent
-
-# 传入参数为采样的点的索引
-# 将采样的点加入到 已构成的graph中 
-def S1InsertS2(sample_mst, parent, graph, result_index, result_dist):
-	# total_weight = 0
-	# for edge in graph:
-	# 	total_weight += edge[2]
-	# thre = total_weight / len(graph)
-	thre = max(e[2] for e in graph)
-	# print "threshold: ", thre  
-
-	for index,  edge in enumerate(sample_mst) :
-		if edge[2] < thre :
-			temp_edge = [edge[0], result_index[edge[0]][1], result_dist[edge[0]][1]]
-			if find(edge[0], parent) != find(result_index[edge[0]][1], parent) :
-			  	graph.append(temp_edge)
-			  	union(edge[0], result_index[edge[0]][1], parent) 
-			# selectEdge(edge[0], graph, parent, result_index, result_dist)
-		else:
-			temp_edge = [edge[0], result_index[edge[0]][1], result_dist[edge[0]][1]]
-			if find(edge[0], parent) != find(result_index[edge[0]][1], parent) :
-			  	graph.append(temp_edge)
-			  	union(edge[0], result_index[edge[0]][1], parent) 
-			else:
-				temp_edge = [edge[1], result_index[edge[1]][1], result_dist[edge[1]][1]]
-				if find(edge[1], parent) != find(result_index[edge[1]][1], parent) :
-				  	graph.append(temp_edge)
-				  	union(edge[1], result_index[edge[1]][1], parent)  
-				else:
-					selectEdge(temp_edge[1] , graph, parent, result_index, result_dist)
-	# 用连接component的方法		
-	print "graph: ", len(graph)
-	# 两次循环结束后  应该有 不连通的component，想办法连起来就好
+def first_sampling(point_set):
+	result_dist,result_index = cover_knn(point_set, 6)
+	# plt_point(point_set,fileName)
 	
-def mst_clustering(mst, point_set, cls_num):
-    sorted_edge = sorted(mst, key = lambda x:x[2],  reverse=True)   #由小到大排序
-    # print sorted_edge
-    for i in range(cls_num-1):
-        mst.remove(sorted_edge[i])
-    subtrees = utils.UnionFind()
-    for edge in mst:
-        subtrees.union(edge[0], edge[1])
-    labels = [0] * len(point_set)
-    for i in range(len(point_set)) :
-        labels[i] = subtrees[i]
-    label_set = list(set(labels))
-    for i in range(len(point_set)) :
-        for j in range(len(label_set)) :
-            if labels[i] == label_set[j] :
-                labels[i] = j
-                break
-    return labels
+	# 进行采样 可以换为其他的采样方法
+	# sample_index, remained_index = toSample(point_set, result_index)
+	sample_index = toSample(point_set, result_index)
+	# print "sample_point size : ", len(sample_index) 
+	# plt_sampler(sample_index, point_set, fileName)
+
+	# 对采样的数据创建EMST  调用mlpack的构造mst的方法效率更高
+	# step1 construct MST with sample point 
+	sample_point = indexToCoor(sample_index, point_set)
+	sample_mst = kruscal(sample_point)
+	result_mst = index_change(sample_mst, sample_point, point_set)
+	# print "sample_mst size: ", len(result_mst)
+	# plot_mst(result_mst, point_set, fileName, 1)
+
+	# 把剩下的点加入EMST
+	for idx, point in enumerate(point_set) :
+		if idx not in sample_index :
+			result_mst.append([idx, result_index[idx][1], result_dist[idx][1]])
+	# total_weight = 0
+	# for edge in result_mst:
+	# 	total_weight += edge[2]
+	# print "total_weight: ", total_weight
+	return result_mst	
 
