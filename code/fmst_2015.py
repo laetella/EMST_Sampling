@@ -5,9 +5,9 @@
 # date: 2018-10-10 08:51:44
 # updateDate: 2018-10-10 08:51:44
 # described: fast mst of Zhong 2015 (two rounds MST)
+# 该算法对于稀疏的数据集结果不好 在第二阶段的构造过程中 有的中点位于稀疏部分 导致有的簇为空
+# 无法计算neighbor subset的connect edge 
 
-import sys
-sys.path.append('../utils')
 from math import sqrt
 from networkx import utils
 from sklearn.cluster import KMeans
@@ -102,6 +102,7 @@ def sam(midpoints, point_set):
 		temp_mst = kruscal(each_cluster)
 		sub_mst = index_change(temp_mst, each_cluster, point_set)
 		edge_set.extend(sub_mst)
+	print edge_set
 	ca(point_set, midpoints, init_part, edge_set)
 	return edge_set
 
@@ -145,12 +146,12 @@ def fmst(point_set):
 	centers = kmeans.cluster_centers_
 	init_part, edge_set = dac(point_set, centers, clusters)
 	mst1, midpoints = ca(point_set, centers, init_part, edge_set)
-	mst2 = sam(midpoints, point_set)
-	mst1.extend(mst2)
+	# mst2 = sam(midpoints, point_set)
+	# mst1.extend(mst2)
 	result_mst = kruscal_graph(mst1)
 	return result_mst
 
 if __name__=='__main__':
-	fileName = "../data/chaining.dat"   # 8
-	point_set = loadData(fileName, float, " ")
+	fileName = "../data/two dimension/density_d.dat"   # 8
+	point_set = loadData(fileName, float, ",")
 	result_mst = fmst(point_set)

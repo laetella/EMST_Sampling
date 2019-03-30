@@ -7,6 +7,8 @@
 # described: some plot functions
 
 import matplotlib.pyplot as plt  
+from numpy import array
+from itertools import islice, cycle
 
 def plt_point(point_set,fileName):
     for point in point_set:
@@ -41,38 +43,16 @@ def plt_sampler(sample_index, point_set, fileName):
     plt.yticks([])
     plt.savefig('../result/%s_point.png'%(fileName.split('/')[2].split('.')[0]), dpi=1000)
 
-def plt_10clusters(point_set, clusters, fileName):
-    x = []; y = []; cl = []
-    for i, point in enumerate(point_set) :
-        # plt.annotate(point_set.index(point), xy = (point[0], point[1]),xycoords = 'data',fontsize=4)
-        x.append(point[0])
-        y.append(point[1])
-        # cl.append(0.6)
-        if clusters[i] == 1 :
-            cl.append('black')
-        elif clusters[i] == 2:
-            cl.append('r')
-        elif clusters[i] == 3:
-            cl.append('g')
-        elif clusters[i] == 4:
-            cl.append('b')
-        elif clusters[i] == 5:
-            cl.append('y')
-        elif clusters[i] == 6:
-            cl.append('coral')
-        elif clusters[i] == 7:
-            cl.append('purple')
-        elif clusters[i] == 8:
-            cl.append('m')
-        elif clusters[i] == 9:
-            cl.append('lawngreen')
-        else:
-            cl.append('deepskyblue')
+def plt_clusters(point_set, clusters,str):
+    colors = array(list(islice(cycle(['#377eb8', '#ff7f00', '#4daf4a',
+                                             '#f781bf', '#a65628', '#984ea3',
+                                             '#999999', '#e41a1c', '#dede00']),
+                                      int(max(clusters) + 1))))
+    plt.scatter(array(point_set)[:, 0],array(point_set)[:, 1], s=10, color=colors[clusters])
     plt.title("")
     plt.xticks([])
     plt.yticks([])
-    plt.scatter(x, y, c = cl)
-    plt.savefig('../result/%s_clusters.png'%(fileName.split('/')[2].split('.')[0]), dpi=500)
+    plt.savefig('../result/%s_clusters.png'%(str), dpi=500)
 
 def plt_test(point_set, clusters, fileName):
     for point in point_set:
