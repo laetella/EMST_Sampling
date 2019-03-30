@@ -9,7 +9,9 @@
 import sys
 sys.path.append('../utils')
 from sampling import first_sampling
-from mst_cls import mst_clustering
+from mst_cls import mst_clustering, analysis_cluster
+from scipy.io.arff import loadarff
+from time import time
 from plt import *
 from pnng_2018 import pnng
 from fmst_2015 import fmst
@@ -22,40 +24,79 @@ def loadData(fileName,data_type, str):
     return point_set
 
 if __name__ == '__main__': 
-	# fileName = "../data/data_f.dat"   # 2 174
-	# fileName = "../data/data_i.dat"   # 2   84
-	# fileName = "../data/data_ieee.dat"   # 9   441
-	# fileName = "../data/data_h.dat"   # 2    176
-	# fileName = "../data/data_syn1_2.dat"  # 4
-	# fileName = "../data/data_syn2_1.dat"   # 3
-	# fileName = "../data/data_caiming.dat" # 2   96
-	# fileName = "../data/data_caiming_1.dat" # 2   63
-	# fileName = "../data/density_d.dat"      # 5   38
-	# fileName = "../data/data_t4_sorted.csv"   # 6
-	# fileName = "../data/data_t5_sorted.csv"   # 6
-	# fileName = "../data/data_t7_sorted.csv"   # 9
-	# fileName = "../data/data_t8_sorted.csv"   # 8
+	# two dimension
+	# fileName = "../data/two dimension/data_f.dat"   # 2 174
+	# fileName = "../data/two dimension/data_i.dat"   # 2   84
+	# fileName = "../data/two dimension/data_ieee.dat"   # 9   441
+	# fileName = "../data/two dimension/data_h.dat"   # 2    176
+	# fileName = "../data/two dimension/data_syn1_2.dat"  # 4
+	# fileName = "../data/two dimension/data_syn2_1.dat"   # 3
+	# fileName = "../data/two dimension/data_caiming.dat" # 2   96
+	# fileName = "../data/two dimension/data_caiming_1.dat" # 2   63
+	# fileName = "../data/two dimension/density_d.dat"      # 5   38
+	# fileName = "../data/two dimension/data_t4_sorted.csv"   # 6
+	# fileName = "../data/two dimension/data_t5_sorted.csv"   # 6
+	# fileName = "../data/two dimension/data_t7_sorted.csv"   # 9
+	# fileName = "../data/two dimension/data_t8_sorted.csv"   # 8
 	# point_set = loadData(fileName, float, ",") 
-	# fileName = "../data/data_l.dat"           # 7
-	fileName = "../data/chaining.dat"   # 8
-	# fileName = "../data/data_caiming.dat"   # 8
+	# fileName = "../data/two dimension/data_l.dat"           # 7
+	fileName = "../data/two dimension/chaining.dat"   # 8
+	# fileName = "../data/two dimension/data_caiming.dat"   # 8
 	point_set = loadData(fileName, float, " ")
 
+	# multi low dimension
+	# 2 clusters
+	fileName = '../data/low dimension/arcene.arff'
+	# fileName = '../data/low dimension/appendicitis.arff'
+	# fileName = '../data/low dimension/banknote-authentication.arff'
+	# fileName = '../data/low dimension/breast-cancer-wisconsin.arff'
+	# fileName = '../data/low dimension/bupa.arff'
+	# fileName = "../data/low dimension/fertility-diagnosis.arff"
+	# fileName = '../data/low dimension/habermans-survival.arff'
+	# fileName = '../data/low dimension/pima-indians-diabetes.arff'
+	# fileName = '../data/low dimension/wdbc.arff'
+	# fileName = '../data/low dimension/ionosphere.arff'
+	#
+	#     # more than 2 clusters: 
+    # fileName = '../data/iris.arff'        # 3
+    # fileName = '../data/hayes-roth.arff'  # 3
+    # fileName = '../data/thyroid-newthyroid.arff'  # 3
+    # fileName = '../data/soybean-small.arff'   # 4
+    # # fileName = '../data/waveform-v1.arff'
+    # fileName = '../data/waveform-v2.arff'
+    # fileName = '../data/wine.arff'          # 3
+    # fileName = "../data/pendigits.arff"     # 10 
+	dataset,meta = loadarff(open(fileName,'r'))
+	# point_set = dataset[meta.names()[:-1]]
+	point_set = dataset[meta.names()[:-1]].tolist() 
+	labels = dataset[meta.names()[-1]] 
+	print fileName, ": size: ", len(dataset), ", Attributes: ", len(meta.names())   
+
 	# our first_sampling method
+	# start = time()
 	# result_mst = first_sampling(point_set)
+	# print "our first sampling method using time: ", time() - start
 
 	# 2018 Fast AMST Jothi
-	# result_mst = pnng(point_set)
+	start = time()
+	result_mst = pnng(point_set)
+	print "2018 Fast AMST Jothi using time: ", time() - start
 
 	# 2015 Fast MST Zhong
-	result_mst = fmst(point_set)
-
-	# plot MST and compute clusters
-	# plot_mst(result_mst, point_set, fileName,2)
-	clusters = mst_clustering(result_mst, point_set, 2)
+	# start = time()
+	# result_mst = fmst(point_set)
+	# print "2015 Fast MST Zhong using time: ", time() - start
 
 	# traditional MST-based clustering
+	# start = time()
 	# model = MSTClustering(cutoff=0.15)
 	# clusters = model.fit_predict(point_set)
+	# print "traditional MST-based clustering using time: ", time() - start
 
-	plt_10clusters(point_set, clusters, fileName)
+	# plot MST and clusters on two dimension
+	# plot_mst(result_mst, point_set, fileName,2)
+	# plt_10clusters(point_set, clusters, fileName)
+	
+	clusters = mst_clustering(result_mst, point_set, 2)
+	factors = analysis_cluster(labels, clusters)
+	print factors

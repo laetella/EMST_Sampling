@@ -6,6 +6,7 @@
 # updateDate: 2019-03-27 17:33:57
 # described: 基于MST的聚类方法 
 
+from __future__ import division
 from networkx import utils
 from math import sqrt
 
@@ -52,4 +53,27 @@ def mst_clustering(mst, point_set, cls_num):
                 labels[i] = j
                 break
     return labels
+
+def analysis_cluster(right_labels, clusters):
+    a = 0; b = 0; c = 0; d = 0;
+    n = len(right_labels) 
+    for i in range(n) :
+        for j in range(n) :
+            if j != i :
+                if right_labels[i] == right_labels[j] and clusters[i] == clusters[j] :
+                    a += 1
+                elif right_labels[i] != right_labels[j] and clusters[i] == clusters[j]:
+                    b += 1
+                elif right_labels[i] == right_labels[j] and clusters[i] != clusters[j] :
+                    c += 1
+                elif right_labels[i] != right_labels[j] and clusters[i] != clusters[j] :
+                    d += 1
+    a = a / 2; b = b / 2; c = c / 2; d = d/2;
+    m = n * (n-1) / 2
+    r = ((a+c)*(a+b)/m);
+    ARI=(a-r)/(((a+c)+(a+b))/2-r)
+    Rand = (a+d)/m
+    Jaccard = a/ (a+b+c)
+    FolkesAndMallow = sqrt(a/(a+b))*(a/(a+c))
+    return [Rand, ARI, Jaccard, FolkesAndMallow]    
 
