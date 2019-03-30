@@ -4,15 +4,14 @@
 # email: laetella@outlook.com
 # date: 2018-10-10 08:51:44
 # updateDate: 2018-10-10 08:51:44
-# described: 
+# described: fast mst of Zhong 2015 (two rounds MST)
 
 import sys
 sys.path.append('../utils')
 from math import sqrt
 from networkx import utils
 from sklearn.cluster import KMeans
-from numpy import mean, std, ravel
-
+from numpy import mean, array
 
 def loadData(fileName,data_type, str): 
     point_set = [] 
@@ -46,6 +45,17 @@ def kruscal(point_set):
             mst.append(e)
     return mst
 
+def kruscal_graph(graph):
+	sorted_edge = sorted(graph, key = lambda x:x[2])
+	# initialize the union find set
+	uf = utils.UnionFind()
+	mst = []
+	for e in sorted_edge:
+	    if uf[e[0]] != uf[e[1]] :
+	        uf.union(e[0], e[1])
+	        mst.append(e)
+	return mst
+
 def index_change(sample_mst, sample_point, point_set):
 	mst = []
 	for edge in sample_mst:
@@ -55,7 +65,9 @@ def index_change(sample_mst, sample_point, point_set):
 	return mst
 
 def dce(cluster1, cluster2, center1, center2):
+	# to find the neiboring edge
 	temp_dist = 1.0e4
+	start = []; end = []
 	for p in cluster1:
 		d = dist(p, center2)
 		if d < temp_dist :
@@ -67,18 +79,14 @@ def dce(cluster1, cluster2, center1, center2):
 		if d < temp_dist :
 			temp_dist = d
 			end = q
-	return [p, q, dist(p,q)]
+	neighbor_edge = [start, end, dist(start,end)]
+	return neighbor_edge
 
-def sam(cen_mst, point_set):
-	for edge in cen_mst:
-		# python list 求平均值
-		midpoint = mean(edge[0], edge[1])
+def sam(midpoints, point_set):
 	# 对于点集中的每一个点 计算到所有中点的距离 然后取最小的，分配到相应的簇中，下面的过程一样
 	init_part = [0] * len(midpoints)
 	for i in range(len(midpoints)) :
 	    init_part[i] = []
-	for index, p in enumerate(point_set) :
-	    init_part[clusters[index]].append(p)
 	for p in point_set:
 		temp_dist = 1.0e14
 		for idx, mp in enumerate(midpoints) :
@@ -87,17 +95,20 @@ def sam(cen_mst, point_set):
 				temp_dist = d
 				cls_label = idx
 		# 每次循环结束后得到最小的距离和对应的簇标号
-		init_part[idx].append(p)
-	return init_part
+		init_part[cls_label].append(p)
+	edge_set = []
+	# compute mst of every subset 
+	for each_cluster in init_part:
+		temp_mst = kruscal(each_cluster)
+		sub_mst = index_change(temp_mst, each_cluster, point_set)
+		edge_set.extend(sub_mst)
+	ca(point_set, midpoints, init_part, edge_set)
+	return edge_set
 
-def com_submst(point_set, clusters):
-	for x in xrange(1,10):
-		pass
-
-def dac(point_set, init_part_num):
+def dac(point_set, centers, clusters):
 	# Divide and Conquer Using K-means (DAC)
-	init_part = [0] * init_part_num
-	for i in range(init_part_num) :
+	init_part = [0] * len(centers)
+	for i in range(len(centers)) :
 	    init_part[i] = []
 	for index, p in enumerate(point_set) :
 	    init_part[clusters[index]].append(p)
@@ -111,6 +122,7 @@ def dac(point_set, init_part_num):
 
 def ca(point_set, centers, init_part, edge_set):
 	# Combine Algorithm (CA)
+	midpoints = []
 	cen_mst = kruscal(centers)
 	for edge in cen_mst:
 		# Determine the neighboring subsets.
@@ -118,29 +130,27 @@ def ca(point_set, centers, init_part, edge_set):
 		sub_cluster2 = init_part[edge[1]]
 		# Detect the Connecting Edge (DCE)
 		temp_edge = dce(sub_cluster1, sub_cluster2, centers[edge[0]], centers[edge[1]])
-		edge_set.append(temp_edge)
-	return edge_set
+		start = point_set.index(temp_edge[0])
+		end = point_set.index(temp_edge[1])
+		edge_set.append([start, end, temp_edge[2]])
+		# 同时计算边的中点
+		two_point = array([centers[edge[0]], centers[edge[1]]]) 
+		midpoints.append(mean(array(two_point), axis=1)) 
+	return edge_set, midpoints
 
 def fmst(point_set):
 	init_part_num = int(round(sqrt(len(point_set))))   
 	kmeans = KMeans(n_clusters=init_part_num, random_state=0).fit(point_set)
 	clusters = kmeans.labels_
 	centers = kmeans.cluster_centers_
-	init_part, edge_set = dac(point_set, init_part_num)
-	mst1 = ca(point_set, centers, init_part, edge_set)
-	mst2 = sam(point_set)
+	init_part, edge_set = dac(point_set, centers, clusters)
+	mst1, midpoints = ca(point_set, centers, init_part, edge_set)
+	mst2 = sam(midpoints, point_set)
 	mst1.extend(mst2)
 	result_mst = kruscal_graph(mst1)
 	return result_mst
 
 if __name__=='__main__':
-	# a = [1,2]; b = [2,3]
-	# c = mean(a, b)
-	# print c
-	# fileName = "../data/chaining.dat"   # 8
-	# fileName = "../data/data_f.dat"   # 8
-	# point_set = loadData(fileName, float, ",")
-	# print "point_set size: ", len(point_set)
-	# result_mst = fmst(point_set)
-	# plot_mst(result_mst, point_set, fileName,1)
-
+	fileName = "../data/chaining.dat"   # 8
+	point_set = loadData(fileName, float, " ")
+	result_mst = fmst(point_set)

@@ -12,6 +12,7 @@ from sampling import first_sampling
 from mst_cls import mst_clustering
 from plt import *
 from pnng_2018 import pnng
+from fmst_2015 import fmst
 
 def loadData(fileName,data_type, str): 
     point_set = [] 
@@ -44,14 +45,17 @@ if __name__ == '__main__':
 	# result_mst = first_sampling(point_set)
 
 	# 2018 Fast AMST Jothi
-	result_mst = pnng(point_set)
+	# result_mst = pnng(point_set)
+
+	# 2015 Fast MST Zhong
+	result_mst = fmst(point_set)
 
 	# plot MST and compute clusters
 	# plot_mst(result_mst, point_set, fileName,2)
-	# clusters = mst_clustering(result_mst, point_set, 2)
+	clusters = mst_clustering(result_mst, point_set, 2)
 
 	# traditional MST-based clustering
 	# model = MSTClustering(cutoff=0.15)
 	# clusters = model.fit_predict(point_set)
 
-	# plt_10clusters(point_set, clusters, fileName)
+	plt_10clusters(point_set, clusters, fileName)
