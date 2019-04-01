@@ -17,6 +17,30 @@ def dist(point1,point2):
         sum_dis += (point2[index] - point1[index])**2
     return sqrt(sum_dis)
 
+# TODO 更新parent array
+def prim(point_set):
+    result_set = []
+    low_cost = [0]* len(point_set)
+    start_index = 0
+    end_index = 0
+    flags = [False] *len(point_set)
+    for index in range(len(point_set)):
+        low_cost[index] =  dist(point_set[start_index], point_set[index]) 
+    while len(result_set) < len(point_set):
+        min_dist = 65535
+        for index1 in range(len(point_set)):
+            if low_cost[index1]!=0.0 and low_cost[index1] < min_dist and not flags[index1]:
+                min_dist = low_cost[index1]
+                end_index = index1
+        flags[end_index] = True
+        for index,distance in enumerate(low_cost) :
+            if distance == min_dist:
+                start_index = index
+        flags[start_index] = True
+        edge = [start_index, end_index, min_dist] 
+        result_set.append(edge)
+    return result_set
+
 def kruscal(point_set):
     # compute graph and sort first
     n = len(point_set)
@@ -75,5 +99,5 @@ def analysis_cluster(right_labels, clusters):
     Rand = (a+d)/m
     Jaccard = a/ (a+b+c)
     FolkesAndMallow = sqrt(a/(a+b))*(a/(a+c))
-    return [Rand, ARI, Jaccard, FolkesAndMallow]    
+    return [round(Rand, 4), round(ARI, 4), round(Jaccard, 4), round(FolkesAndMallow, 4)]    
 

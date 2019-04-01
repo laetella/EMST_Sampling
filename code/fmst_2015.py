@@ -146,8 +146,8 @@ def fmst(point_set):
 	centers = kmeans.cluster_centers_
 	init_part, edge_set = dac(point_set, centers, clusters)
 	mst1, midpoints = ca(point_set, centers, init_part, edge_set)
-	# mst2 = sam(midpoints, point_set)
-	# mst1.extend(mst2)
+	mst2 = sam(midpoints, point_set)
+	mst1.extend(mst2)
 	result_mst = kruscal_graph(mst1)
 	return result_mst
 
