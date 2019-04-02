@@ -102,7 +102,6 @@ def sam(midpoints, point_set):
 		temp_mst = kruscal(each_cluster)
 		sub_mst = index_change(temp_mst, each_cluster, point_set)
 		edge_set.extend(sub_mst)
-	print edge_set
 	ca(point_set, midpoints, init_part, edge_set)
 	return edge_set
 
@@ -146,8 +145,8 @@ def fmst(point_set):
 	centers = kmeans.cluster_centers_
 	init_part, edge_set = dac(point_set, centers, clusters)
 	mst1, midpoints = ca(point_set, centers, init_part, edge_set)
-	mst2 = sam(midpoints, point_set)
-	mst1.extend(mst2)
+	# mst2 = sam(midpoints, point_set)
+	# mst1.extend(mst2)
 	result_mst = kruscal_graph(mst1)
 	return result_mst
 

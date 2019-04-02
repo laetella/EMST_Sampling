@@ -29,3 +29,11 @@ Second Method：
 
 为什么2018年的文章说kruscal比prim高效呢？
 实现所有的MST算法 对比效率
+
+如何一次画同一数据集的四个图来同时对比四种算法
+
+python 包里有相关的聚类质量评价指标 
+ROC 画图等 
+参考2018的文章 Edge error weight error 来评价
+
+python 在图的左上角标号
