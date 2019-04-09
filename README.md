@@ -37,3 +37,13 @@ ROC 画图等
 参考2018的文章 Edge error weight error 来评价
 
 python 在图的左上角标号
+
+sklearn 数据加载工具 产生数据集
+
+可以尝试其他的采样方法优化实验结果
+
+python 绘制ROC曲线 (需要计算yscore， 根据analysis cluster中真正例计算指标)
+yscore 怎么得到 ：sklearn 内置的聚类模型 fit 得到的结果就是
+表示每个测试样本属于正样本的概率 如何预测每个样本的概率呢？我的分类器并不能得到每个样本的概率值
+
+写related work  查找sampling相关的论文

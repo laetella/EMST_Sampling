@@ -16,7 +16,7 @@ def plt_point(point_set,fileName):
         plt.annotate(point_set.index(point), xy = (point[0], point[1]),xycoords = 'data',fontsize=0.2)
     plt.savefig('../result/%s_point.png'%(fileName.split('/')[2].split('.')[0]), dpi=1000)
 
-def plot_mst(result_set,point_set,fileName,s):
+def plot_mst(result_set,point_set,fileName):
     for point in point_set:
         plt.scatter(point[0],point[1],color= 'r', s=15) # plt.figure(0)
         # plt.annotate(point_set.index(point), xy = (point[0], point[1]),xycoords = 'data',fontsize=8)
@@ -26,7 +26,7 @@ def plot_mst(result_set,point_set,fileName,s):
     plt.title("")
     plt.xticks([])
     plt.yticks([])
-    plt.savefig('../result/%s_mst_%d.png'%(fileName.split('/')[2].split('.')[0], s), dpi=400)
+    plt.savefig('../result/%s_mst.png'%(fileName.split('/')[2].split('.')[0]), dpi=400)
     # plt.close(0)
 
 def plt_sampler(sample_index, point_set, fileName):
@@ -42,7 +42,7 @@ def plt_sampler(sample_index, point_set, fileName):
     plt.yticks([])
     plt.savefig('../result/%s_point.png'%(fileName.split('/')[2].split('.')[0]), dpi=1000)
 
-def plt_clusters(point_set, clusters,str):
+def plt_clusters(point_set, clusters, fileName):
     colors = array(list(islice(cycle(['#377eb8', '#ff7f00', '#4daf4a',
                                              '#f781bf', '#a65628', '#984ea3',
                                              '#999999', '#e41a1c', '#dede00']),
@@ -51,7 +51,7 @@ def plt_clusters(point_set, clusters,str):
     plt.title("")
     plt.xticks([])
     plt.yticks([])
-    plt.savefig('../result/%s_clusters.png'%(str), dpi=500)
+    plt.savefig('../result/%s_clusters.png'%(fileName.split('/')[2].split('.')[0]), dpi=500)
 
 def plt_test(point_set, clusters, fileName):
     for point in point_set:
