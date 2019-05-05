@@ -81,6 +81,7 @@ if __name__ == '__main__':
 	
 	# compute y scores
 	# ROC evaluation
+
 	fpr,tpr,thresholds = roc_curve(labels, array(clusters) )
 	plt.plot(fpr,tpr,linewidth=2,label="ROC")
 	plt.xlabel("false presitive rate")

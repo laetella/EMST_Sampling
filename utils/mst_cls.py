@@ -61,7 +61,6 @@ def kruscal(point_set):
 
 def mst_clustering(mst, point_set, cls_num):
     sorted_edge = sorted(mst, key = lambda x:x[2],  reverse=True)   #由小到大排序
-    # print sorted_edge
     for i in range(cls_num-1):
         mst.remove(sorted_edge[i])
     subtrees = utils.UnionFind()
@@ -100,4 +99,3 @@ def analysis_cluster(right_labels, clusters):
     Jaccard = a/ (a+b+c)
     FolkesAndMallow = sqrt(a/(a+b))*(a/(a+c))
     return [round(Rand, 4), round(ARI, 4), round(Jaccard, 4), round(FolkesAndMallow, 4)]    
-
