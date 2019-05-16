@@ -70,11 +70,22 @@ def mst_clustering(mst, point_set, cls_num):
     for i in range(len(point_set)) :
         labels[i] = subtrees[i]
     label_set = list(set(labels))
+    for l in label_set:
+        if labels.count(l) < 10 :
+            print (l)
+            for i,ll in enumerate(labels):
+                if ll == l :
+                    labels[i] = 1
+    # print "label_set: ", label_set
+    # 因为初始化类标号是0， 离群点类标号为1， 所以其他点从2开始标号
     for i in range(len(point_set)) :
-        for j in range(len(label_set)) :
-            if labels[i] == label_set[j] :
+        for j in range(1, len(label_set)+1) :
+            if labels[i] == label_set[j-1] :
                 labels[i] = j
                 break
+    for i,l in enumerate(labels) :
+        if l > 10 :
+            labels[i] = l % 10
     return labels
 
 def analysis_cluster(right_labels, clusters):

@@ -5,6 +5,7 @@
 # date: 2018-04-26 17:48:00
 # updateDate: 2018-05-10 17:48:00
 # described: 不同方法的对比
+from __future__ import division
 
 import sys
 sys.path.append('../utils')
@@ -19,6 +20,32 @@ from fmst_2015 import fmst
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt  
 from numpy import array
+import random
+import numpy as np
+from sklearn.metrics import confusion_matrix
+# 用于计算某一个类的一组tpr和fpr的值
+# 需要传入一个参数：当前计算的类的正确编号以及数量，即，l,M
+def get_tpr_fpr(lables, clusters, point_set):
+    TPR = []; FPR = []; # TPR=m1/N;FPR=(n1-m1)/(N-M)
+    roc_p_num = 5; # 设定一条ROC曲线上的点数
+    sam_num = 20; # s设定每次用来计算tpr的样本点数， 即n1
+    N = len(point_set)
+    # m1是可改变的，用一个循环来多次计算m1的值
+    counter = 0
+    while counter < roc_p_num :
+        temp_p = random.sample(point_set, sam_num)
+        y_true = []; y_pred = []
+        for p in temp_p:
+            y_true.append(lables[point_set.index(p)])
+            y_pred.append(clusters[point_set.index(p)])
+        cm = confusion_matrix(y_true, y_pred)
+        tpr = cm[0,1] / (cm[0,1] + cm[0,0])
+        fpr = cm[1,1] / (cm[1,1] + cm[1,0])
+        TPR.append(tpr)
+        FPR.append(fpr)
+        counter += 1
+    print (TPR, FPR)
+    return TPR, FPR
 
 if __name__ == '__main__': 
 	# multi low dimension
@@ -50,12 +77,12 @@ if __name__ == '__main__':
 	# bc = load_wine()
 	# point_set = bc.data
 	# labels = bc.target
-	print "soybean-small", ": size: ", len(point_set), ", Attributes: ", len(point_set[0])  
+	print (fileName, ": size: ", len(point_set), ", Attributes: ", len(point_set[0]))  
 
 	# our first_sampling method
 	start = time()
 	result_mst = first_sampling(point_set)
-	print "our first sampling method using time: ", time() - start
+	print ("our first sampling method using time: ", time() - start)
 
 	# 2018 Fast AMST Jothi
 	# start = time()
@@ -81,8 +108,12 @@ if __name__ == '__main__':
 	
 	# compute y scores
 	# ROC evaluation
+	labels = [int(i) for i in labels]
+	print (labels)
+	print (clusters)
+	tpr, fpr = get_tpr_fpr(labels, clusters, point_set)
 
-	fpr,tpr,thresholds = roc_curve(labels, array(clusters) )
+	# fpr,tpr,thresholds = roc_curve(labels, array(clusters) )
 	plt.plot(fpr,tpr,linewidth=2,label="ROC")
 	plt.xlabel("false presitive rate")
 	plt.ylabel("true presitive rate")

@@ -11,6 +11,7 @@ import sys
 sys.path.append('../utils')
 from sampling import first_sampling
 from mst_cls import mst_clustering
+from _mst_clustering import MSTClustering
 from plt import *
 from sklearn import cluster, datasets, mixture
 from numpy import array, ndarray
@@ -20,7 +21,7 @@ from os import walk, path, remove
 from time import time
 import random
 import numpy as np
-
+from sklearn.metrics import confusion_matrix
 # from sklearn.metrics import roc_curve, auc
 # from sklearn.model_selection import train_test_split
 # ##划分数据集
@@ -70,32 +71,33 @@ def l2Coor(labels, point_set):
 
 # 用于计算某一个类的一组tpr和fpr的值
 # 需要传入一个参数：当前计算的类的正确编号以及数量，即，l,M
-def get_tpr_fpr(clusters, point_set, l, M):
+def get_tpr_fpr(lables, clusters, point_set):
     TPR = []; FPR = []; # TPR=m1/N;FPR=(n1-m1)/(N-M)
     roc_p_num = 5; # 设定一条ROC曲线上的点数
-    sam_num = 5; # s设定每次用来计算tpr的样本点数， 即n1
+    sam_num = 20; # s设定每次用来计算tpr的样本点数， 即n1
     N = len(point_set)
     # m1是可改变的，用一个循环来多次计算m1的值
     counter = 0
     while counter < roc_p_num :
         temp_p = random.sample(point_set, sam_num)
-        m1 = 0
-        for point in temp_p:
-            # 找到n1个数据中被标记为1的点数，记为m1
-            if clusters[point_set.index(point)] == l :
-                m1 += 1    
-        temp_m = m1 / N
-        if temp_m in TPR :
-            continue
-        TPR.append(temp_m)
-        temp_f = (sam_num - m1) / (N - M)
-        FPR.append(temp_f)
+        y_true = []; y_pred = []
+        for p in temp_p:
+            y_true.append(lables[point_set.index(p)])
+            y_pred.append(clusters[point_set.index(p)])
+        cm = confusion_matrix(y_true, y_pred)
+        tpr = cm[0,1] / (cm[0,1] + cm[0,0])
+        fpr = cm[1,1] / (cm[1,1] + cm[1,0])
+        TPR.append(tpr)
+        FPR.append(fpr)
         counter += 1
-    print TPR, FPR
+    # print TPR, FPR
     return TPR, FPR
 
 # 预测某点的概率的方法： 这点预测成了3 实际类标号为1， 该方法对这个点的预测概率=预测成3的点数 、、预测成1 的点数
-
+# tn  [0, 0]
+# fp  [0, 1]
+# fn  [1, 0]
+# tp  [1, 1]
 if __name__=='__main__':
     # fileName = "../data/chaining.dat"   # 8
     # fileName = "../data/test/chaining.dat"   # 8
@@ -111,26 +113,38 @@ if __name__=='__main__':
     ###################   data caiming  ################
     flieName = "../data/two dimension/data_caiming.dat"
     point_set = loadData(flieName, float, ',') 
-    right_labels = [1]*24
-    right_labels = [2]*72
-    right_labels.extend(right_labels)
-    right_labels[28] = 1
-    right_labels[37] = 1
-    a = np.array(point_set)
-    print a.shape[0]
+    y_true = [1]*24
+    y_true.extend([0]*72) 
+    y_true[28] = 1
+    y_true[37] = 1
     # smst = first_sampling(point_set)
-    # smst_labels = mst_clustering(smst, point_set, 2)
-    # # print smst_labels
-    # smst_clusters = l2Coor(smst_labels, point_set)
-    # # 当前计算的类标号记为l，该类的正确标号的数量为M 
-    # l = 0
-    # M = right_labels.count(0)
-    # # print smst_clusters
-    # tpr, fpr = get_tpr_fpr(smst_labels, point_set, l, M)
+    # y_pred = mst_clustering(smst, point_set, 2)
+    # tpr, fpr = get_tpr_fpr(y_true, y_pred, point_set)
     # plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve');
     # plt.show()
+    # print tpr, fpr
+
+    # # print y_pred
+    # smst_clusters = l2Coor(y_pred, point_set)
+    # # 当前计算的类标号记为l，该类的正确标号的数量为M 
+    # l = 0
+    # M = y_true.count(0)
+    # # print smst_clusters
+    # n = 96; p = 0; tp = 0; fp = 0
+    # for y in y_true:
+    #     if y == l :
+    #         p += 1
+    # for i, y in enumerate(y_pred) :
+    #     if y == l :
+    #         tp += 1
+    #         if y_true[i] == l :
+    #             fp += 1
+    # tpr = fp / p
+    # fpr = fp / (n - p)
+    # print tpr, fpr
+    # tpr, fpr = get_tpr_fpr(y_true, y_pred, point_set, l, M)
     # # 需要一个循环，对每一个类分别画一个ROC曲线
-    # right_clusters = l2Coor(right_labels, point_set)
+    # right_clusters = l2Coor(y_true, point_set)
     # for c in right_clusters:
     #     tpr, fpr = get_tpr_fpr(clusters, point_set)
     #     plt_roc(tpr, fpr)
@@ -160,3 +174,9 @@ if __name__=='__main__':
     #         plt.scatter(array(point_set)[:, 0],array(point_set)[:, 1], s=20, color=colors[clusters])
     #         plot_num += 1
     # plt.savefig('../result/clusters.png', dpi=500)
+    # model = MSTClustering(cutoff= 3)
+    model = MSTClustering(cutoff=0.3, min_cluster_size=20)
+    clusters = model.fit(point_set)
+    # clusters = model.predict_proba(point_set)
+    # clusters = model.fit_predict(point_set)
+    print (clusters.labels_)

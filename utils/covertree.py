@@ -221,7 +221,7 @@ class CoverTree(object):
             far_p_ds = []
 
             new_pts_len = 0
-            for i in xrange(len(pts_p_ds)):
+            for i in range(len(pts_p_ds)):
                 idx, dp = pts_p_ds[i]
                 if dp <= dmax:
                     near_p_ds.append((idx, dp))
@@ -268,7 +268,7 @@ class CoverTree(object):
             far_q_ds = []
 
             new_pts_len = 0
-            for i in xrange(len(pts_p_ds)):
+            for i in range(len(pts_p_ds)):
                 idx, dp = pts_p_ds[i]
                 dq = self.distance(self.data[q_idx], self.data[idx])
                 if dq <= dmax:
@@ -304,7 +304,7 @@ class CoverTree(object):
                                                          far_p_ds)]
                 radius = max(d for (ii, d) in itertools.chain(near_p_ds,
                                                               far_p_ds,
-                                                              [(0.0, None)]))
+                                                              [(0.0, 0.0)]))
                 #print("Building level %d leaf node for p_idx=%d with %s"
                 #      % (i, p_idx, str(idx)))
                 node = CoverTree._LeafNode(idx, p_idx, radius)
@@ -425,9 +425,9 @@ class CoverTree(object):
     def _print(self):
         def print_node(node, indent):
             if isinstance(node, CoverTree._LeafNode):
-                print "-" * indent, node
+                print ("-" * indent, node)
             else:
-                print "-" * indent, node
+                print ("-" * indent, node)
                 for child in node.children:
                     print_node(child, indent + 1)
 
