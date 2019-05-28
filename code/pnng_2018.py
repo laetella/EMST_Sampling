@@ -5,6 +5,7 @@
 # date: 2019-03-27 18:22:52
 # updateDate: 2019-03-27 18:22:52
 # described: 对比2017年的文章 PNNG 计算近似MST的算法
+# pnng 形成的mst不一定是所有连通的，如何去掉离群点呢？将类标号小于10个的归为一类
 
 from math import sqrt
 from sklearn.cluster import KMeans

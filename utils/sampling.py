@@ -13,9 +13,11 @@
 from covertree import CoverTree, distance_matrix
 from scipy.spatial.distance import euclidean, cityblock, chebyshev
 from mst_cls import kruscal
+from sklearn.neighbors import KDTree
 
 def cover_knn(point_set, k_threshold):
-    my_cover = CoverTree(point_set, euclidean, leafsize=2)
+    my_cover = KDTree(point_set, leaf_size=3)              
+    # my_cover = CoverTree(point_set, euclidean, leafsize=1)
     result_dist,result_index = my_cover.query(point_set, k_threshold)        
     return result_dist,result_index
 
@@ -67,4 +69,4 @@ def first_sampling(point_set):
 	# 	total_weight += edge[2]
 	# print "total_weight: ", total_weight
 	return result_mst	
-
+ 

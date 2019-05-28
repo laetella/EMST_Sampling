@@ -14,7 +14,7 @@ def dist(point1,point2):
     sum_dis = 0.0
     dimension = len(point1)
     for index in range(dimension)  :
-        sum_dis += (point2[index] - point1[index])**2
+        sum_dis += (float(point2[index])  - float(point1[index]) )**2
     return sqrt(sum_dis)
 
 # TODO 更新parent array
@@ -59,6 +59,8 @@ def kruscal(point_set):
             mst.append(e)
     return mst
 
+# 将聚类结果的离群点划分到最近的簇
+
 def mst_clustering(mst, point_set, cls_num):
     sorted_edge = sorted(mst, key = lambda x:x[2],  reverse=True)   #由小到大排序
     for i in range(cls_num-1):
@@ -72,7 +74,7 @@ def mst_clustering(mst, point_set, cls_num):
     label_set = list(set(labels))
     for l in label_set:
         if labels.count(l) < 10 :
-            print (l)
+            # print (l)
             for i,ll in enumerate(labels):
                 if ll == l :
                     labels[i] = 1
@@ -110,3 +112,24 @@ def analysis_cluster(right_labels, clusters):
     Jaccard = a/ (a+b+c)
     FolkesAndMallow = sqrt(a/(a+b))*(a/(a+c))
     return [round(Rand, 4), round(ARI, 4), round(Jaccard, 4), round(FolkesAndMallow, 4)]    
+
+def mst2clustering(result_set, cls_num, cls_size):
+    # 需要把计算得到的MST转换成聚类可用的稀疏矩阵的形式
+    sorted_edge = sorted(result_set, key = lambda x:x[2],  reverse=True)   #由小到大排序
+    n = len(result_set) + 1
+    for i in range(cls_num):
+        result_set.remove(sorted_edge[i])
+    mst = csr_matrix((n, n)).toarray()
+    for edge in result_set:
+        mst[edge[0]][edge[1]] = edge[2]
+    n_components, labels = connected_components(mst, directed=False)
+    # remove clusters with fewer than min_cluster_size
+    counts = np.bincount(labels)
+    to_remove = np.where(counts < cls_size)[0]
+    if len(to_remove) > 0:
+        for i in to_remove:
+            labels[labels == i] = -1
+        _, labels = np.unique(labels, return_inverse=True)
+        labels -= 1  # keep -1 labels the same
+    labels[labels == -1] = max(labels) + 1
+    return labels

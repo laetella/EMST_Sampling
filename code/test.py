@@ -21,7 +21,7 @@ from os import walk, path, remove
 from time import time
 import random
 import numpy as np
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score, adjusted_mutual_info_score
 # from sklearn.metrics import roc_curve, auc
 # from sklearn.model_selection import train_test_split
 # ##划分数据集
@@ -48,9 +48,6 @@ from sklearn.metrics import confusion_matrix
 # plt.legend(loc="lower right");
 # plt.show()
 
-# 将聚类结果的离群点划分到最近的簇
-
-
 def loadData(fileName,data_type, str): 
     point_set = [] 
     for line in open(fileName, 'r'): 
@@ -69,35 +66,6 @@ def l2Coor(labels, point_set):
         clusters[labels[i]].append(point)
     return clusters
 
-# 用于计算某一个类的一组tpr和fpr的值
-# 需要传入一个参数：当前计算的类的正确编号以及数量，即，l,M
-def get_tpr_fpr(lables, clusters, point_set):
-    TPR = []; FPR = []; # TPR=m1/N;FPR=(n1-m1)/(N-M)
-    roc_p_num = 5; # 设定一条ROC曲线上的点数
-    sam_num = 20; # s设定每次用来计算tpr的样本点数， 即n1
-    N = len(point_set)
-    # m1是可改变的，用一个循环来多次计算m1的值
-    counter = 0
-    while counter < roc_p_num :
-        temp_p = random.sample(point_set, sam_num)
-        y_true = []; y_pred = []
-        for p in temp_p:
-            y_true.append(lables[point_set.index(p)])
-            y_pred.append(clusters[point_set.index(p)])
-        cm = confusion_matrix(y_true, y_pred)
-        tpr = cm[0,1] / (cm[0,1] + cm[0,0])
-        fpr = cm[1,1] / (cm[1,1] + cm[1,0])
-        TPR.append(tpr)
-        FPR.append(fpr)
-        counter += 1
-    # print TPR, FPR
-    return TPR, FPR
-
-# 预测某点的概率的方法： 这点预测成了3 实际类标号为1， 该方法对这个点的预测概率=预测成3的点数 、、预测成1 的点数
-# tn  [0, 0]
-# fp  [0, 1]
-# fn  [1, 0]
-# tp  [1, 1]
 if __name__=='__main__':
     # fileName = "../data/chaining.dat"   # 8
     # fileName = "../data/test/chaining.dat"   # 8
@@ -120,35 +88,10 @@ if __name__=='__main__':
     # smst = first_sampling(point_set)
     # y_pred = mst_clustering(smst, point_set, 2)
     # tpr, fpr = get_tpr_fpr(y_true, y_pred, point_set)
-    # plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve');
-    # plt.show()
-    # print tpr, fpr
 
     # # print y_pred
     # smst_clusters = l2Coor(y_pred, point_set)
-    # # 当前计算的类标号记为l，该类的正确标号的数量为M 
-    # l = 0
-    # M = y_true.count(0)
-    # # print smst_clusters
-    # n = 96; p = 0; tp = 0; fp = 0
-    # for y in y_true:
-    #     if y == l :
-    #         p += 1
-    # for i, y in enumerate(y_pred) :
-    #     if y == l :
-    #         tp += 1
-    #         if y_true[i] == l :
-    #             fp += 1
-    # tpr = fp / p
-    # fpr = fp / (n - p)
-    # print tpr, fpr
-    # tpr, fpr = get_tpr_fpr(y_true, y_pred, point_set, l, M)
-    # # 需要一个循环，对每一个类分别画一个ROC曲线
-    # right_clusters = l2Coor(y_true, point_set)
-    # for c in right_clusters:
-    #     tpr, fpr = get_tpr_fpr(clusters, point_set)
-    #     plt_roc(tpr, fpr)
-	
+
     # plot_mst(result_mst, point_set, fileName,1)
     # plt.figure(figsize=[40,8.9])
     # plt.subplots_adjust(left=0.02, right=0.978, bottom=0.15, wspace=0.05)
@@ -175,8 +118,9 @@ if __name__=='__main__':
     #         plot_num += 1
     # plt.savefig('../result/clusters.png', dpi=500)
     # model = MSTClustering(cutoff= 3)
-    model = MSTClustering(cutoff=0.3, min_cluster_size=20)
-    clusters = model.fit(point_set)
-    # clusters = model.predict_proba(point_set)
-    # clusters = model.fit_predict(point_set)
-    print (clusters.labels_)
+    model = MSTClustering(cutoff=2, min_cluster_size=20)
+    # clusters = model.fit(point_set)
+    clusters = model.fit_predict(point_set)
+    factors = adjusted_mutual_info_score(y_true, clusters)
+    print factors
+    # print (clusters.labels_)

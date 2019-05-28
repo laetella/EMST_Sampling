@@ -7,82 +7,86 @@
 # described: 不同方法的对比
 from __future__ import division
 
-import sys
+import sys, os
 sys.path.append('../utils')
 from sampling import first_sampling
 from mst_cls import kruscal, mst_clustering, analysis_cluster
 from scipy.io.arff import loadarff
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import minimum_spanning_tree, connected_components
 from sklearn.datasets import *
 from time import time
+from _mst_clustering import MSTClustering
 # from plt import *
 from pnng_2018 import pnng
 from fmst_2015 import fmst
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt  
 from numpy import array
+from plt import *
 import random
 import numpy as np
-from sklearn.metrics import confusion_matrix
-# 用于计算某一个类的一组tpr和fpr的值
-# 需要传入一个参数：当前计算的类的正确编号以及数量，即，l,M
-def get_tpr_fpr(lables, clusters, point_set):
-    TPR = []; FPR = []; # TPR=m1/N;FPR=(n1-m1)/(N-M)
-    roc_p_num = 5; # 设定一条ROC曲线上的点数
-    sam_num = 20; # s设定每次用来计算tpr的样本点数， 即n1
-    N = len(point_set)
-    # m1是可改变的，用一个循环来多次计算m1的值
-    counter = 0
-    while counter < roc_p_num :
-        temp_p = random.sample(point_set, sam_num)
-        y_true = []; y_pred = []
-        for p in temp_p:
-            y_true.append(lables[point_set.index(p)])
-            y_pred.append(clusters[point_set.index(p)])
-        cm = confusion_matrix(y_true, y_pred)
-        tpr = cm[0,1] / (cm[0,1] + cm[0,0])
-        fpr = cm[1,1] / (cm[1,1] + cm[1,0])
-        TPR.append(tpr)
-        FPR.append(fpr)
-        counter += 1
-    print (TPR, FPR)
-    return TPR, FPR
+from sklearn.metrics import balanced_accuracy_score # ,accuracy_score# ,  adjusted_mutual_info_score# calinski_harabasz_score #, 
+# from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, 
+
+def mst2clustering(result_set, cls_num, cls_size):
+    # 需要把计算得到的MST转换成聚类可用的稀疏矩阵的形式
+    sorted_edge = sorted(result_set, key = lambda x:x[2],  reverse=True)   #由小到大排序
+    n = len(result_set) + 1
+    for i in range(cls_num):
+        result_set.remove(sorted_edge[i])
+    mst = csr_matrix((n, n)).toarray()
+    for edge in result_set:
+        mst[edge[0]][edge[1]] = edge[2]
+    n_components, labels = connected_components(mst, directed=False)
+    # remove clusters with fewer than min_cluster_size
+    counts = np.bincount(labels)
+    to_remove = np.where(counts < cls_size)[0]
+    if len(to_remove) > 0:
+        for i in to_remove:
+            labels[labels == i] = -1
+        _, labels = np.unique(labels, return_inverse=True)
+        labels -= 1  # keep -1 labels the same
+    labels[labels == -1] = max(labels) + 1
+    return labels
 
 if __name__ == '__main__': 
-	# multi low dimension
-	# 2 clusters
-	# fileName = '../data/low dimension/arcene.arff'
-	fileName = '../data/low dimension/appendicitis.arff'
-	# fileName = '../data/low dimension/banknote-authentication.arff'
-	# fileName = '../data/low dimension/breast-cancer-wisconsin.arff'
-	# fileName = '../data/low dimension/bupa.arff'
-	# fileName = "../data/low dimension/fertility-diagnosis.arff"
-	# fileName = '../data/low dimension/habermans-survival.arff'
-	# fileName = '../data/low dimension/pima-indians-diabetes.arff'
-	# fileName = '../data/low dimension/wdbc.arff'
-	# fileName = '../data/low dimension/ionosphere.arff'
-	#
-	#     # more than 2 clusters: 
-	# fileName = '../data/low dimension/iris.arff'        # 3
-	# fileName = '../data/low dimension/hayes-roth.arff'  # 3
-	# fileName = '../data/low dimension/thyroid-newthyroid.arff'  # 3
-	# fileName = '../data/low dimension/soybean-small.arff'   # 4
-	# # fileName = '../data/low dimension/waveform-v1.arff'
-	# fileName = '../data/low dimension/waveform-v2.arff'
-	# fileName = "../data/low dimension/pendigits.arff"     # 10 
-	dataset,meta = loadarff(open(fileName,'r'))
-	point_set = dataset[meta.names()[:-1]].tolist() 
-	labels = dataset[meta.names()[-1]]
-	
+	factor_file = open('../result/smst.csv','a')
+	path = "../data/low dimension"
+	for root,dirs,files in os.walk(path): 
+		point_set = []
+		for name in files:
+			file_name, file_type = os.path.splitext(name)
+			fileName = os.path.join(root,name)
+			print (file_name)
+			dataset,meta = loadarff(open(fileName,'r'))
+			point_set = dataset[meta.names()[:-1]].tolist()
+			labels = dataset[meta.names()[-1]].tolist()
+			for i,l in enumerate(labels) :
+				labels[i] = int(l)
+			# print (fileName, ": size: ", len(point_set), ", Attributes: ", len(point_set[0]))  
+
+			start = time()
+			result_mst = first_sampling(point_set)
+			end = round(time() - start, 2)
+			factor_file.write(str(file_name) + "," + str(end) + ",bac,")
+			print ("our first sampling method using time: ", end)
+
+			clusters = mst2clustering(result_mst, 5, 20).tolist()
+			factors = balanced_accuracy_score(labels, clusters)
+			print (file_name, factors)
+			factor_file.write(str(factors)+ "\n")
+	factor_file.close()
+
 	# load_boston, load_iris, load_diabetes, load_digits, load_linnerud, load_breast_cancer,load_wine
 	# bc = load_wine()
 	# point_set = bc.data
 	# labels = bc.target
-	print (fileName, ": size: ", len(point_set), ", Attributes: ", len(point_set[0]))  
 
 	# our first_sampling method
-	start = time()
-	result_mst = first_sampling(point_set)
-	print ("our first sampling method using time: ", time() - start)
+	# start = time()
+	# result_mst = first_sampling(point_set)
+	# print ("our first sampling method using time: ", time() - start)
 
 	# 2018 Fast AMST Jothi
 	# start = time()
@@ -101,20 +105,20 @@ if __name__ == '__main__':
 	# # clusters = model.fit_predict(point_set)
 	# print "kruscal MST using time: ", round(time() - start, 2)
 
-	clusters = mst_clustering(result_mst, point_set, 2)
-	# plt_clusters(point_set, clusters, "our_circle")
-	# factors = analysis_cluster(labels, clusters)
+	# model = MSTClustering(cutoff=0.2, min_cluster_size=10)
+	# clusters = model.fit(point_set)
+	# clusters = model.fit_predict(point_set)
+	# clusters = mst_clustering(result_mst, point_set, 4)
+	# # plt_clusters(point_set, clusters, "our_circle")
+	# # factors = analysis_cluster(labels, clusters)
+	# # print factors
+	# # calinski_harabasz_score
+	# # compute y scores
+	# # ROC evaluation
+	# labels = [int(i) for i in labels]
+	# factors = adjusted_mutual_info_score(labels, clusters)
+	# # factors = balanced_accuracy_score(labels, clusters)
+	# # factors = precision_recall_fscore_support(labels, clusters)
 	# print factors
-	
-	# compute y scores
-	# ROC evaluation
-	labels = [int(i) for i in labels]
-	print (labels)
-	print (clusters)
-	tpr, fpr = get_tpr_fpr(labels, clusters, point_set)
-
-	# fpr,tpr,thresholds = roc_curve(labels, array(clusters) )
-	plt.plot(fpr,tpr,linewidth=2,label="ROC")
-	plt.xlabel("false presitive rate")
-	plt.ylabel("true presitive rate")
-	plt.show()
+	# print (labels)
+	# print (clusters)

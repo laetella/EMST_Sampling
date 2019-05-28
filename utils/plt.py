@@ -58,3 +58,35 @@ def plt_test(point_set, clusters, fileName):
         plt.scatter(point[0],point[1],s=20)
         plt.annotate(point_set.index(point), xy = (point[0], point[1]),xycoords = 'data',fontsize=0.2)
     plt.savefig('../result/%s_point.png'%(fileName.split('/')[2].split('.')[0]), dpi=1000)
+
+# 预测某点的概率的方法： 这点预测成了3 实际类标号为1， 该方法对这个点的预测概率=预测成3的点数 、、预测成1 的点数
+# tn  [0, 0]
+# fp  [0, 1]
+# fn  [1, 0]
+# tp  [1, 1]
+# tpr = fp / p
+# fpr = fp / (n - p)
+# 用于计算某一个类的一组tpr和fpr的值
+# 需要传入一个参数：当前计算的类的正确编号以及数量，即，l,M
+def get_tpr_fpr(lables, clusters, point_set):
+    TPR = []; FPR = []; # TPR=m1/N;FPR=(n1-m1)/(N-M)
+    roc_p_num = 5; # 设定一条ROC曲线上的点数
+    sam_num = 20; # s设定每次用来计算tpr的样本点数， 即n1
+    N = len(point_set)
+    # m1是可改变的，用一个循环来多次计算m1的值
+    counter = 0
+    while counter < roc_p_num :
+        temp_p = random.sample(point_set, sam_num)
+        y_true = []; y_pred = []
+        for p in temp_p:
+            y_true.append(lables[point_set.index(p)])
+            y_pred.append(clusters[point_set.index(p)])
+        cm = confusion_matrix(y_true, y_pred)
+        tpr = cm[0,1] / (cm[0,1] + cm[0,0])
+        fpr = cm[1,1] / (cm[1,1] + cm[1,0])
+        TPR.append(tpr)
+        FPR.append(fpr)
+        counter += 1
+    # print TPR, FPR
+    return TPR, FPR
+
